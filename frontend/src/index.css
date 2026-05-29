@@ -1,0 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  font-family: "Jetbrains Mono";
+}
+
+:root {
+  --bg-canvas: #f4f6fc;
+  --bg-panel: #fdfdfd;
+
+  --border-light: #e8edf9;
+
+  --primary: #3b82f6;
+  --secondary: #8b5cf6;
+  --grid: #c7d2fe;
+
+  --shadow: 0 4px 12px rgba(165, 180, 252, 0.25);
+  --shadow-darker: 0 6px 16px rgba(99, 102, 241, 0.3);
+
+  --border-radius: 4px;
+  --border-radius-round: 12px;
+
+  --title: 32px;
+  --subtitle: 24px;
+  --text: 14px;
+}

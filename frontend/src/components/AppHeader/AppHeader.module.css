@@ -1,0 +1,26 @@
+.header {
+  width: 100%;
+
+  padding: 1rem 2rem;
+
+  box-shadow: var(--shadow);
+}
+
+.links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+
+  list-style-type: none;
+}
+
+.link {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: var(--subtitle);
+}
+
+.link:hover {
+  color: var(--secondary);
+}

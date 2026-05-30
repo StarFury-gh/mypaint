@@ -13,12 +13,12 @@ function AppHeader() {
           </li>
           <li>
             <Link to="/draw" className={styles["link"]}>
-              New Canvas
+              Новый холст
             </Link>
           </li>
           <li>
-            <Link to="/" className={styles["link"]}>
-              Login
+            <Link to="/login" className={styles["link"]}>
+              Вход
             </Link>
           </li>
         </ul>

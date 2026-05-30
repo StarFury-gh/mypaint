@@ -1,19 +1,27 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+
+import { ColorPicker } from "antd";
 
 import styles from "./DrawingPage.module.css";
 
-import eraser_icon from "/eraser.svg";
-import eye_dropper_icon from "/eyedropper.svg";
-import clear_icon from "/clear.svg";
-import save_icon from "/save.svg";
+import {
+  save_icon,
+  brush_icon,
+  eraser_icon,
+  eye_dropper_icon,
+  clear_icon,
+  fill_icon,
+} from "../../components/icons";
+
+type DrawingTools = "brush" | "eraser" | "eyedropper" | "fill";
 
 function DrawingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushSize, setBrushSize] = useState(5);
-  const [brushColor, setBrushColor] = useState("#000000");
-  const [isEyeDropperActive, setIsEyeDropperActive] = useState(false);
-  const [eraserActive, setEraserActive] = useState<boolean>(false);
+  const [brushColor, setBrushColor] = useState("rgba(125, 125, 125, 1)");
+
+  const [currentTool, setCurrentTool] = useState<DrawingTools>("brush");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -28,6 +36,11 @@ function DrawingPage() {
     context.strokeStyle = brushColor;
   }, [brushSize, brushColor]);
 
+  const handleColorChange = (color: unknown, css: string) => {
+    setBrushColor(css);
+  };
+
+  // Функция обработчик рисования линии с текущим инструментом
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -41,7 +54,7 @@ function DrawingPage() {
 
     setIsDrawing(true);
 
-    if (eraserActive) {
+    if (currentTool === "eraser") {
       context.globalCompositeOperation = "destination-out";
     } else {
       context.globalCompositeOperation = "source-over";
@@ -53,10 +66,7 @@ function DrawingPage() {
     context.stroke();
   };
 
-  const handleSetEraser = () => {
-    setEraserActive(!eraserActive);
-  };
-
+  // Функция для рисования инструментом
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
 
@@ -76,18 +86,29 @@ function DrawingPage() {
     context.moveTo(x, y);
   };
 
+  // Определяем что делать, относительно текущего инструмента
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isEyeDropperActive) {
+    if (currentTool === "eyedropper") {
       const color = getColorAtPosition(e);
       if (color) {
         setBrushColor(color);
-        setIsEyeDropperActive(false);
+        setCurrentTool("brush");
       }
-    } else {
+    } else if (currentTool === "brush" || currentTool === "eraser") {
       startDrawing(e);
+    } else if (currentTool === "fill") {
+      handleFill(e);
     }
   };
 
+  // Обработчик заливки
+  const handleFill = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    alert("Функция сейчас не доступна");
+    console.log(e.clientX, e.clientY);
+    setCurrentTool("brush");
+  };
+
+  // Обрабатываем конец рисования
   const stopDrawing = () => {
     setIsDrawing(false);
     const canvas = canvasRef.current;
@@ -99,6 +120,7 @@ function DrawingPage() {
     context.beginPath();
   };
 
+  // Для получения цвета в месте клика по холсту
   const getColorAtPosition = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
@@ -131,6 +153,7 @@ function DrawingPage() {
     return null;
   };
 
+  // Полная очистка холста
   const handleClearCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -141,6 +164,7 @@ function DrawingPage() {
     context.clearRect(0, 0, canvas.width, canvas.height);
   };
 
+  // Функция для сохранения холста как файла
   const handleSaveCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -149,6 +173,11 @@ function DrawingPage() {
     link.download = "drawing.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
+  };
+
+  // Функция для смены инструмента
+  const handleToolChange = (tool: DrawingTools) => {
+    setCurrentTool(tool);
   };
 
   return (
@@ -166,27 +195,55 @@ function DrawingPage() {
             />
             <span>{brushSize}px</span>
           </div>
-          <div>
+          <div className={styles["setting"]}>
             <label>Цвет кисти: </label>
-            <input
-              type="color"
+            <ColorPicker
               value={brushColor}
-              onChange={(e) => setBrushColor(e.target.value)}
-            />
+              onChange={handleColorChange}
+            ></ColorPicker>
           </div>
           <div className={styles["alternative_buttons"]}>
             <button
-              onClick={handleSetEraser}
-              className={`${styles["alternative_btn"]} ${eraserActive ? styles["active"] : ""}`}
+              onClick={() => {
+                handleToolChange("brush");
+              }}
+              className={`${styles["alternative_btn"]} ${currentTool === "brush" ? styles["active"] : ""}`}
+            >
+              <div className={styles["btn_content"]}>
+                <p>Кисть</p>
+                <img src={brush_icon} alt="" />
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                handleToolChange("fill");
+              }}
+              className={`${styles["alternative_btn"]} ${currentTool === "fill" ? styles["active"] : ""}`}
+            >
+              <div className={styles["btn_content"]}>
+                <p>Заливка</p>
+                <img src={fill_icon} alt="" />
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                handleToolChange("eraser");
+              }}
+              className={`${styles["alternative_btn"]} ${currentTool === "eraser" ? styles["active"] : ""}`}
             >
               <div className={styles["btn_content"]}>
                 <p>Ластик</p>
                 <img src={eraser_icon} alt="" />
               </div>
             </button>
+
             <button
-              className={`${isEyeDropperActive ? styles["active"] : ""} ${styles["alternative_btn"]}`}
-              onClick={() => setIsEyeDropperActive(!isEyeDropperActive)}
+              className={`${currentTool === "eyedropper" ? styles["active"] : ""} ${styles["alternative_btn"]}`}
+              onClick={() => {
+                setCurrentTool("eyedropper");
+              }}
             >
               <div className={styles["btn_content"]}>
                 <p>Пипетка</p>
@@ -214,7 +271,7 @@ function DrawingPage() {
           </div>
         </div>
         <div className={styles["canvas_box"]}>
-          <div className="">
+          <div className={styles["inner_box"]}>
             <canvas
               className={styles["canvas"]}
               ref={canvasRef}

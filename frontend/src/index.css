@@ -14,8 +14,13 @@
 
   --primary: #3b82f6;
   --secondary: #8b5cf6;
-  --contrast: #ffcc66;
+  --contrast-primary: #ff9933;
+  --contrast-secondary: #ffcc66;
   --grid: #c7d2fe;
+
+  --text-dark: hsl(0, 5%, 95%);
+
+  --disabled: hsl(0, 5%, 70%);
 
   --shadow: 0 4px 12px rgba(165, 180, 252, 0.25);
   --shadow-darker: 0 6px 16px rgba(99, 102, 241, 0.3);
@@ -26,4 +31,6 @@
   --title: 32px;
   --subtitle: 24px;
   --text: 14px;
+
+  --transition-time: 0.3s;
 }

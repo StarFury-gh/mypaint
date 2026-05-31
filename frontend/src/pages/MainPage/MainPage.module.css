@@ -137,7 +137,11 @@
 .cta {
   text-align: center;
   padding: 60px 24px;
-  background: linear-gradient(135deg, var(--contrast), var(--secondary));
+  background: linear-gradient(
+    135deg,
+    var(--contrast-secondary),
+    var(--secondary)
+  );
   margin-top: 40px;
   border-radius: var(--border-radius-round) var(--border-radius-round) 0 0;
 }

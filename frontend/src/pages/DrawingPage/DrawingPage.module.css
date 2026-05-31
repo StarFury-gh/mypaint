@@ -44,42 +44,6 @@
   gap: 1rem;
 }
 
-.alternative_btn {
-  border: 1px solid var(--primary);
-  background: none;
-
-  transition:
-    background-color 0.3s,
-    color 0.3s;
-
-  border-radius: var(--border-radius);
-
-  padding: 0.5rem 1rem;
-}
-
-.alternative_btn:hover {
-  background-color: var(--primary);
-  color: var(--bg-panel);
-}
-
-.alternative_btn:disabled:hover {
-  color: red;
-  background: none;
-}
-
-.active {
-  background-color: var(--primary);
-  color: var(--bg-panel);
-}
-
-.btn_content {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.25rem;
-}
-
 .alternative_buttons {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -88,6 +52,7 @@
 }
 
 .canvas_settings {
+  width: inherit;
   display: flex;
   flex-direction: column;
   gap: 1rem;

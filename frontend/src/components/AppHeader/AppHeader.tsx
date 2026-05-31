@@ -37,9 +37,9 @@ function AppHeader() {
     <header className={styles["header"]}>
       <nav>
         <ul className={styles["links"]}>
-          {navOptions.map((option) => {
+          {navOptions.map((option, idx) => {
             return (
-              <li>
+              <li key={idx}>
                 <Link
                   onClick={() => handlePageChange(option.name)}
                   to={option.to}

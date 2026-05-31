@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { ColorPicker } from "antd";
+import { ColorPicker, Slider } from "antd";
+
+import { ToolButton } from "../../components/CanvasComponents";
 
 import styles from "./DrawingPage.module.css";
 
@@ -171,6 +173,11 @@ function DrawingPage() {
     link.click();
   };
 
+  //Функция для сохранения рисунка на сервере
+  const handleUploadToCloud = () => {
+    console.log("Сохраняем на сервере...");
+  };
+
   // Функция для смены инструмента
   const handleToolChange = (tool: DrawingTools) => {
     setCurrentTool(tool);
@@ -182,12 +189,9 @@ function DrawingPage() {
         <div className={styles["side_panel"]}>
           <div className={styles["canvas_settings"]}>
             <label>Размер кисти: </label>
-            <input
-              type="range"
-              min="1"
-              max="50"
-              value={brushSize}
-              onChange={(e) => setBrushSize(Number(e.target.value))}
+            <Slider
+              defaultValue={5}
+              onChange={(newSize) => setBrushSize(newSize)}
             />
             <span>{brushSize}px</span>
           </div>
@@ -199,81 +203,63 @@ function DrawingPage() {
             ></ColorPicker>
           </div>
           <div className={styles["alternative_buttons"]}>
-            <button
+            <ToolButton
+              currentTool={currentTool}
+              toolName="brush"
               onClick={() => {
                 handleToolChange("brush");
               }}
-              className={`${styles["alternative_btn"]} ${currentTool === "brush" ? styles["active"] : ""}`}
+              icon={brush_icon}
             >
-              <div className={styles["btn_content"]}>
-                <p>Кисть</p>
-                <img src={brush_icon} alt="" />
-              </div>
-            </button>
+              Кисть
+            </ToolButton>
 
-            <button
-              onClick={() => {
-                handleToolChange("fill");
-              }}
-              disabled={true}
-              className={`${styles["alternative_btn"]} ${currentTool === "fill" ? styles["active"] : ""}`}
+            <ToolButton
+              toolName="fill"
+              onClick={() => handleToolChange("fill")}
+              icon={fill_icon}
+              disabled
             >
-              <div className={styles["btn_content"]}>
-                <p>Заливка</p>
-                <img src={fill_icon} alt="" />
-              </div>
-            </button>
+              Заливка
+            </ToolButton>
 
-            <button
-              onClick={() => {
-                handleToolChange("eraser");
-              }}
-              className={`${styles["alternative_btn"]} ${currentTool === "eraser" ? styles["active"] : ""}`}
+            <ToolButton
+              toolName="eraser"
+              currentTool={currentTool}
+              onClick={() => handleToolChange("eraser")}
+              icon={eraser_icon}
             >
-              <div className={styles["btn_content"]}>
-                <p>Ластик</p>
-                <img src={eraser_icon} alt="" />
-              </div>
-            </button>
+              Ластик
+            </ToolButton>
 
-            <button
-              className={`${currentTool === "eyedropper" ? styles["active"] : ""} ${styles["alternative_btn"]}`}
-              onClick={() => {
-                setCurrentTool("eyedropper");
-              }}
+            <ToolButton
+              currentTool={currentTool}
+              toolName="eyedropper"
+              onClick={() => handleToolChange("eyedropper")}
+              icon={eye_dropper_icon}
             >
-              <div className={styles["btn_content"]}>
-                <p>Пипетка</p>
-                <img src={eye_dropper_icon} alt="" />
-              </div>
-            </button>
-            <button
-              className={styles["alternative_btn"]}
+              Пипетка
+            </ToolButton>
+
+            <ToolButton
+              toolName="clearCanvas"
               onClick={handleClearCanvas}
+              icon={clear_icon}
             >
-              <div className={styles["btn_content"]}>
-                <p>Очистить</p>
-                <img src={clear_icon} alt="" />
-              </div>
-            </button>
-            <button
-              className={styles["alternative_btn"]}
-              onClick={handleSaveCanvas}
+              Очистить
+            </ToolButton>
+
+            <ToolButton onClick={handleSaveCanvas} icon={save_icon}>
+              Сохранить
+            </ToolButton>
+
+            <ToolButton
+              toolName="uploadToCloud"
+              onClick={handleUploadToCloud}
+              icon={upload_to_cloud}
             >
-              <div className={styles["btn_content"]}>
-                <p>Сохранить</p>
-                <img src={save_icon} alt="" />
-              </div>
-            </button>
-            <button
-              className={styles["alternative_btn"]}
-              onClick={handleSaveCanvas}
-            >
-              <div className={styles["btn_content"]}>
-                <p>В облако</p>
-                <img src={upload_to_cloud} alt="" />
-              </div>
-            </button>
+              В облако
+            </ToolButton>
           </div>
         </div>
         <div className={styles["canvas_box"]}>

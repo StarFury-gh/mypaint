@@ -19,8 +19,18 @@
   color: var(--primary);
   text-decoration: none;
   font-size: var(--subtitle);
+  border-bottom: none;
+  transition: color 0.3s;
 }
 
 .link:hover {
   color: var(--secondary);
+}
+
+.active {
+  border-bottom: 2px solid var(--primary);
+}
+
+.active:hover {
+  border-bottom: 2px solid var(--secondary);
 }

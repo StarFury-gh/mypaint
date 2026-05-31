@@ -4,6 +4,7 @@ import clear_icon from "/clear.svg";
 import save_icon from "/save.svg";
 import brush_icon from "/brush.svg";
 import fill_icon from "/fill.svg";
+import upload_to_cloud from "/cloud_upload.svg";
 
 export {
   eraser_icon,
@@ -12,4 +13,5 @@ export {
   save_icon,
   brush_icon,
   fill_icon,
+  upload_to_cloud,
 };

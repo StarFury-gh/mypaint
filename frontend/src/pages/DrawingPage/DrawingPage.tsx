@@ -10,6 +10,7 @@ import {
   eraser_icon,
   eye_dropper_icon,
   clear_icon,
+  upload_to_cloud,
   fill_icon,
 } from "../../components/icons";
 
@@ -36,7 +37,7 @@ function DrawingPage() {
     context.strokeStyle = brushColor;
   }, [brushSize, brushColor]);
 
-  const handleColorChange = (color: unknown, css: string) => {
+  const handleColorChange = (_: unknown, css: string) => {
     setBrushColor(css);
   };
 
@@ -86,6 +87,11 @@ function DrawingPage() {
     context.moveTo(x, y);
   };
 
+  const handleFill = () => {
+    alert("Функция недоступна.");
+    setCurrentTool("brush");
+  };
+
   // Определяем что делать, относительно текущего инструмента
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (currentTool === "eyedropper") {
@@ -97,15 +103,8 @@ function DrawingPage() {
     } else if (currentTool === "brush" || currentTool === "eraser") {
       startDrawing(e);
     } else if (currentTool === "fill") {
-      handleFill(e);
+      handleFill();
     }
-  };
-
-  // Обработчик заливки
-  const handleFill = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    alert("Функция сейчас не доступна");
-    console.log(e.clientX, e.clientY);
-    setCurrentTool("brush");
   };
 
   // Обрабатываем конец рисования
@@ -144,11 +143,8 @@ function DrawingPage() {
       canvasY < canvas.height
     ) {
       const pixel = context.getImageData(canvasX, canvasY, 1, 1);
-      const [r, g, b] = pixel.data;
-      // Конвертируем RGB в HEX
-      const hex =
-        "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-      return hex;
+      const [r, g, b, a] = pixel.data;
+      return `rgba(${r}, ${g}, ${b}, ${a / 255})`;
     }
     return null;
   };
@@ -219,6 +215,7 @@ function DrawingPage() {
               onClick={() => {
                 handleToolChange("fill");
               }}
+              disabled={true}
               className={`${styles["alternative_btn"]} ${currentTool === "fill" ? styles["active"] : ""}`}
             >
               <div className={styles["btn_content"]}>
@@ -266,6 +263,15 @@ function DrawingPage() {
               <div className={styles["btn_content"]}>
                 <p>Сохранить</p>
                 <img src={save_icon} alt="" />
+              </div>
+            </button>
+            <button
+              className={styles["alternative_btn"]}
+              onClick={handleSaveCanvas}
+            >
+              <div className={styles["btn_content"]}>
+                <p>В облако</p>
+                <img src={upload_to_cloud} alt="" />
               </div>
             </button>
           </div>

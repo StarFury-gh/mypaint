@@ -1,6 +1,9 @@
-import { Link } from "react-router-dom";
-import styles from "./AppHeader.module.css";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+
+import { useAuth } from "../../hooks";
+
+import styles from "./AppHeader.module.css";
 
 interface NavigationOption {
   title: string;
@@ -8,26 +11,34 @@ interface NavigationOption {
   to: string;
 }
 
-const navOptions: Array<NavigationOption> = [
-  {
-    title: "MyPaint",
-    name: "main",
-    to: "/",
-  },
-  {
-    title: "Новый холст",
-    name: "newCanvas",
-    to: "/draw",
-  },
-  {
-    title: "Вход",
-    name: "login",
-    to: "/login",
-  },
-];
-
 function AppHeader() {
+  const auth = useAuth();
+
   const [currentPage, setCurrentPage] = useState("main");
+
+  const navOptions: Array<NavigationOption> = [
+    {
+      title: "MyPaint",
+      name: "main",
+      to: "/",
+    },
+    {
+      title: "Новый холст",
+      name: "newCanvas",
+      to: "/draw",
+    },
+    auth.status
+      ? {
+          title: "Профиль",
+          name: "profile",
+          to: "/profile",
+        }
+      : {
+          title: "Вход",
+          name: "login",
+          to: "/login",
+        },
+  ];
 
   const handlePageChange = (newPage: string) => {
     setCurrentPage(newPage);

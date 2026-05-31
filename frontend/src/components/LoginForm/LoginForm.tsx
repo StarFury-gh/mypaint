@@ -1,6 +1,9 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import { Link } from "react-router-dom";
 
+import axios from "axios";
+
+import { API_URL } from "../../constants";
 import styles from "./LoginForm.module.css";
 
 function LoginForm() {
@@ -35,7 +38,7 @@ function LoginForm() {
     return newErrors;
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const validationErrors = validate();
@@ -47,19 +50,23 @@ function LoginForm() {
     setIsLoading(true);
     setErrors({});
 
-    // Имитация API запроса
-    setTimeout(() => {
-      // Здесь добавьте реальную логику входа
-      if (login === "admin" && password === "123456") {
-        console.log("Успешный вход:", { login, password });
-        alert("Добро пожаловать!");
-        // Перенаправление после успешного входа
-        // navigate('/dashboard');
-      } else {
-        setErrors({ submit: "Неверный логин или пароль" });
-      }
-      setIsLoading(false);
-    }, 1500);
+    const { data } = await axios.post(`${API_URL}/users/login`, {
+      username: login,
+      password,
+    });
+
+    if (data.status) {
+      localStorage.setItem("jwt", data.jwt);
+      setErrors({ submit: "Вы успешно вошли в аккаунт!" });
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2500);
+    } else {
+      setErrors({
+        submit: "Ошибка входа: " + (data.message || "неизвестная ошибка"),
+      });
+    }
+    setIsLoading(false);
   };
 
   const handleLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -124,7 +131,15 @@ function LoginForm() {
           </div>
 
           {errors.submit && (
-            <div className={styles["submitError"]}>{errors.submit}</div>
+            <div
+              className={
+                errors.submit.includes("успешно")
+                  ? styles["successMessage"]
+                  : styles["submitError"]
+              }
+            >
+              {errors.submit}
+            </div>
           )}
 
           <button

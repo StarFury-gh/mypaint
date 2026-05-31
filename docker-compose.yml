@@ -1,0 +1,20 @@
+services:
+  db:
+    build: ./infra/db/
+    ports:
+      - 5432:5432
+    container_name: db
+    volumes:
+      - db_volume:/var/lib/postgresql
+    networks:
+      - internal
+
+volumes:
+  db_volume:
+
+networks:
+  client:
+    driver: bridge
+
+  internal:
+    driver: bridge

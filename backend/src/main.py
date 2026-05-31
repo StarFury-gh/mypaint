@@ -29,6 +29,9 @@ app.add_middleware(
         "http://frontend:80",
         "http://frontend:8080",
     ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
 )
 
 app.include_router(users_router)

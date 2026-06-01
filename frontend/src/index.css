@@ -18,7 +18,8 @@
   --contrast-secondary: #ffcc66;
   --grid: #c7d2fe;
 
-  --text-dark: hsl(0, 5%, 95%);
+  --text-dark: hsl(0, 5%, 5%);
+  --text-white: hsl(0, 0%, 95%);
 
   --disabled: hsl(0, 5%, 70%);
 

@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { useAuth } from "../../hooks";
-
 import styles from "./AppHeader.module.css";
 
 interface NavigationOption {
@@ -11,9 +9,11 @@ interface NavigationOption {
   to: string;
 }
 
-function AppHeader() {
-  const auth = useAuth();
+interface AppHeaderProps {
+  authStatus: boolean;
+}
 
+function AppHeader(props: AppHeaderProps) {
   const [currentPage, setCurrentPage] = useState("main");
 
   const navOptions: Array<NavigationOption> = [
@@ -27,7 +27,7 @@ function AppHeader() {
       name: "newCanvas",
       to: "/draw",
     },
-    auth.status
+    props.authStatus
       ? {
           title: "Профиль",
           name: "profile",

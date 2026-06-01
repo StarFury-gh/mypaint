@@ -35,7 +35,7 @@ function useAuth() {
       })
       .then((response) => {
         const userData = response.data.user;
-        console.log("response:", response, "userData:", userData);
+        // console.log("response:", response, "userData:", userData);
         setData({
           status: true,
           user: { id: userData.id, username: userData.username },

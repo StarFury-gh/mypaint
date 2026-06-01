@@ -1,6 +1,9 @@
 import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import { Link } from "react-router-dom";
 
+import axios from "axios";
+import { API_URL } from "../../constants";
+
 import styles from "./RegisterForm.module.css";
 
 function RegisterForm() {
@@ -62,10 +65,27 @@ function RegisterForm() {
     setIsLoading(true);
     setErrors({});
 
-    setTimeout(() => {
-      console.log("Регистрация:", { login, password });
-      setIsLoading(false);
-    }, 1500);
+    try {
+      const response = await axios.post(`${API_URL}/users/register`, {
+        username: login,
+        password,
+      });
+
+      if (response.status === 409) {
+        setErrors({ login: "Пользователь с таким логином уже существует" });
+      }
+      const { data } = response;
+
+      if (data.status) {
+        localStorage.setItem("jwt", data.jwt);
+      }
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1500);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const handleLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -162,7 +182,15 @@ function RegisterForm() {
           </div>
 
           {errors.submit && (
-            <div className={styles["submitError"]}>{errors.submit}</div>
+            <div
+              className={
+                errors.submit.includes("успешно")
+                  ? styles["successMessage"]
+                  : styles["submitError"]
+              }
+            >
+              {errors.submit}
+            </div>
           )}
 
           <button

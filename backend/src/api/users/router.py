@@ -27,4 +27,4 @@ async def login_user(body: LoginUserDTO, service=Depends(get_users_service)):
 async def authorize(
     authorization=Depends(get_authorization), service=Depends(get_users_service)
 ):
-    return service.authorize(authorization)
+    return await service.authorize(authorization)

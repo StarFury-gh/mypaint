@@ -16,6 +16,16 @@ class Images_Repository:
     def __init__(self, db: Connection) -> None:
         self._db = db
 
+    def _prepare_to_model(self, record: dict) -> Image:
+        return Image(
+            id=str(record.get("id")),
+            author_id=str(record.get("author_id")),
+            path=record.get("path"),
+            title=record.get("title"),
+            created_at=str(record.get("created_at")),
+            updated_at=str(record.get("updated_at")),
+        )
+
     async def get_users_images(
         self, author_id: str, limit: int, offset: int
     ) -> List[Image]:
@@ -26,7 +36,7 @@ class Images_Repository:
             offset,
         )
 
-        records = [Image(**record) for record in records]
+        records = [self._prepare_to_model(dict(record)) for record in records]
 
         return records
 
@@ -40,10 +50,17 @@ class Images_Repository:
                     "MyPainting",
                     author_id,
                 )
+                await self._db.execute(
+                    "UPDATE paintings SET path=$1 WHERE id=$2",
+                    f"/images/{uuid}.png",
+                    uuid,
+                )
                 path = Path(config_object.UPLOAD_DIR) / f"{uuid}.png"
                 async with aiofiles.open(path, "wb") as buffer:
                     content = await file.read()
                     await buffer.write(content)
+
+                await tx.commit()
 
                 return f"{uuid}.png"
 

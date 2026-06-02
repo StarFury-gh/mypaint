@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import { Card } from "antd";
 
-import { brush_icon } from "../../components/icons";
+import { brush_icon } from "../../components/common/icons";
 
 import styles from "./ProfilePage.module.css";
 import { API_URL, IMAGES_URL } from "../../constants";

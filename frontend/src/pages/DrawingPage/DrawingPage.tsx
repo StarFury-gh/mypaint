@@ -14,9 +14,21 @@ import {
   clear_icon,
   upload_to_cloud,
   fill_icon,
-} from "../../components/icons";
+  square_icon,
+  circle_icon,
+} from "../../components/common/icons";
 
-type DrawingTools = "brush" | "eraser" | "eyedropper" | "fill";
+type DrawingTools =
+  | "brush"
+  | "eraser"
+  | "eyedropper"
+  | "fill"
+  | "clearCanvas"
+  | "saveAs"
+  | "uploadToCloud"
+  | "square"
+  | "circle"
+  | "text";
 
 function DrawingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -221,6 +233,26 @@ function DrawingPage() {
               disabled
             >
               Заливка
+            </ToolButton>
+
+            <ToolButton
+              onClick={() => {
+                setCurrentTool("square");
+              }}
+              toolName="square"
+              icon={square_icon}
+            >
+              Квадрат
+            </ToolButton>
+
+            <ToolButton
+              onClick={() => {
+                setCurrentTool("circle");
+              }}
+              toolName="circle"
+              icon={circle_icon}
+            >
+              Круг
             </ToolButton>
 
             <ToolButton

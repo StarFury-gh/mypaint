@@ -9,7 +9,10 @@ type DrawingTools =
   | "fill"
   | "clearCanvas"
   | "saveAs"
-  | "uploadToCloud";
+  | "uploadToCloud"
+  | "square"
+  | "circle"
+  | "text";
 
 interface ToolButtonProps {
   children: ReactNode;

@@ -52,7 +52,7 @@ class Images_Repository:
                 )
                 await self._db.execute(
                     "UPDATE paintings SET path=$1 WHERE id=$2",
-                    f"/images/{uuid}.png",
+                    f"{uuid}.png",
                     uuid,
                 )
                 path = Path(config_object.UPLOAD_DIR) / f"{uuid}.png"

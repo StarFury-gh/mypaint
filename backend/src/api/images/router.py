@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, UploadFile, File
-from fastapi.staticfiles import StaticFiles
 
 from core.security import get_authorization
 
@@ -7,7 +6,6 @@ from .dependencies import get_images_service, Images_Service
 from .schemas import Pagination
 
 images_router = APIRouter(prefix="/images", tags=["images"])
-images_router.mount("/files", StaticFiles(directory="./saved"))
 
 
 @images_router.get("/")

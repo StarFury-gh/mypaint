@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from uvicorn import run
 
@@ -21,6 +22,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.mount("/images/saved", StaticFiles(directory="./saved", check_dir=True))
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[

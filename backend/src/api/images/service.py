@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status, UploadFile
+from pydantic import Base64Str
 
 from asyncpg import ForeignKeyViolationError
 
@@ -26,7 +27,9 @@ class Images_Service:
 
         return {"images": images}
 
-    async def upload_file(self, file: UploadFile, authorization: JWTUserInfo):
+    async def upload_file(
+        self, file: UploadFile, authorization: JWTUserInfo, title: str
+    ):
         if authorization is None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -40,7 +43,9 @@ class Images_Service:
             )
 
         try:
-            result = await self._repo.save_image(file=file, author_id=authorization.id)
+            result = await self._repo.save_image(
+                file=file, author_id=authorization.id, title=title
+            )
         except ForeignKeyViolationError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="User does not exists"
@@ -53,3 +58,45 @@ class Images_Service:
             )
 
         return {"status": True, "uploaded_file": result}
+
+    async def upload_base64(
+        self, base64: Base64Str, title: str, authorization: JWTUserInfo
+    ):
+        if authorization is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authorization required",
+            )
+
+        try:
+            result = await self._repo.save_base64(
+                base64_str=base64, title=title, author_id=authorization.id
+            )
+        except ForeignKeyViolationError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="User does not exists"
+            )
+
+        if result is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error",
+            )
+
+        return {"status": True, "uploaded_file": result}
+
+    async def delete_image(self, id: str, authorization: JWTUserInfo):
+        if authorization is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authorization required",
+            )
+
+        result = await self._repo.delete(id=id, author_id=authorization.id)
+
+        if result is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Image not found"
+            )
+
+        return {"status": True, "deleted": result}

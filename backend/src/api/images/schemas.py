@@ -1,6 +1,11 @@
 from pydantic import BaseModel
 
 
+class UploadImageDTO(BaseModel):
+    img: str
+    title: str
+
+
 class Image(BaseModel):
     id: str
     author_id: str

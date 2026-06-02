@@ -2,15 +2,18 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-import styles from "./ProfilePage.module.css";
-
-import { API_URL } from "../../constants";
 import { Card } from "antd";
+
+import { brush_icon } from "../../components/icons";
+
+import styles from "./ProfilePage.module.css";
+import { API_URL, IMAGES_URL } from "../../constants";
+import { AppButton } from "../../components/common";
 
 interface Image {
   id: string;
   title: string;
-  src: string;
+  path: string;
 }
 
 interface ProfilePageProps {
@@ -84,7 +87,19 @@ function ProfilePage(props: ProfilePageProps) {
           </div>
           <div className={styles["images-grid"]}>
             {images?.map((img) => {
-              return <Card cover={<img src={img.src}></img>}></Card>;
+              console.log(`${IMAGES_URL}/${img.path}`);
+              return (
+                <Card title={img.title}>
+                  <img
+                    className={styles["card-image"]}
+                    src={`${IMAGES_URL}/${img.path}`}
+                    alt="Не удалось загрузить ваше изображение."
+                  />
+                  <AppButton icon={<img src={brush_icon}></img>}>
+                    Редактировать
+                  </AppButton>
+                </Card>
+              );
             })}
           </div>
         </div>

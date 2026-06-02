@@ -46,6 +46,25 @@ function MainPage() {
         </div>
       </section>
 
+      {/* Call to action */}
+      <section className={styles["cta"]}>
+        <h2 className={styles["ctaTitle"]}>Попробовать прямо сейчас</h2>
+        <div className={styles["ctaButtons"]}>
+          <Link
+            to="/draw"
+            className={`${styles["buttonPrimary"]} ${styles["link"]}`}
+          >
+            Открыть редактор
+          </Link>
+          <Link
+            to="/register"
+            className={`${styles["buttonSecondary"]} ${styles["link"]}`}
+          >
+            Зарегистрироваться, чтобы включить облачное хранилище
+          </Link>
+        </div>
+      </section>
+
       {/* Облачное хранилище */}
       <section className={styles["cloud"]}>
         <h2 className={styles["sectionTitle"]}>Облачное хранилище</h2>
@@ -65,25 +84,6 @@ function MainPage() {
             <strong> необходимо авторизоваться</strong>. Без авторизации рисунки
             будут храниться локально в браузере.
           </p>
-        </div>
-      </section>
-
-      {/* Call to action */}
-      <section className={styles["cta"]}>
-        <h2 className={styles["ctaTitle"]}>Попробовать прямо сейчас</h2>
-        <div className={styles["ctaButtons"]}>
-          <Link
-            to="/draw"
-            className={`${styles["buttonPrimary"]} ${styles["link"]}`}
-          >
-            Открыть редактор
-          </Link>
-          <Link
-            to="/register"
-            className={`${styles["buttonSecondary"]} ${styles["link"]}`}
-          >
-            Зарегистрироваться, чтобы включить облачное хранилище
-          </Link>
         </div>
       </section>
     </div>

@@ -136,6 +136,7 @@
 
 .cta {
   text-align: center;
+  margin: 20px;
   padding: 60px 24px;
   background: linear-gradient(
     135deg,
@@ -143,7 +144,7 @@
     var(--secondary)
   );
   margin-top: 40px;
-  border-radius: var(--border-radius-round) var(--border-radius-round) 0 0;
+  border-radius: var(--border-radius-round);
 }
 
 .ctaTitle {

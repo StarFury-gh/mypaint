@@ -28,6 +28,7 @@ type DrawingTools =
   | "uploadToCloud"
   | "square"
   | "circle"
+  | "ellipse"
   | "text";
 
 function DrawingPage() {
@@ -35,8 +36,13 @@ function DrawingPage() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushSize, setBrushSize] = useState(5);
   const [brushColor, setBrushColor] = useState("rgba(125, 125, 125, 1)");
-
   const [currentTool, setCurrentTool] = useState<DrawingTools>("brush");
+
+  // Добавляем состояния для фигур
+  const [shapeStart, setShapeStart] = useState<{ x: number; y: number } | null>(
+    null,
+  );
+  const [snapshot, setSnapshot] = useState<ImageData | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -55,6 +61,164 @@ function DrawingPage() {
     setBrushColor(css);
   };
 
+  // Функция для начала рисования квадрата
+  const handleSquareDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setShapeStart({ x, y });
+
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    setSnapshot(imageData);
+
+    setIsDrawing(true);
+  };
+
+  // Функция для отрисовки квадрата в реальном времени
+  const drawSquare = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !shapeStart || !snapshot) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const currentX = e.clientX - rect.left;
+    const currentY = e.clientY - rect.top;
+
+    // Восстанавливаем сохраненный снимок холста
+    context.putImageData(snapshot, 0, 0);
+
+    const width = currentX - shapeStart.x;
+    const height = currentY - shapeStart.y;
+
+    context.strokeStyle = brushColor;
+    context.lineWidth = brushSize;
+    context.lineCap = "square";
+    context.lineJoin = "miter";
+
+    context.beginPath();
+    context.rect(shapeStart.x, shapeStart.y, width, height);
+    context.stroke();
+
+    context.lineCap = "round";
+    context.lineJoin = "round";
+  };
+
+  // Функция для начала рисования окружности
+  const handleCircleDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setShapeStart({ x, y });
+
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    setSnapshot(imageData);
+
+    setIsDrawing(true);
+  };
+
+  // Функция для отрисовки окружности в реальном времени (с сохранением пропорций)
+  const drawCircle = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !shapeStart || !snapshot) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const currentX = e.clientX - rect.left;
+    const currentY = e.clientY - rect.top;
+
+    // Восстанавливаем сохраненный снимок холста
+    context.putImageData(snapshot, 0, 0);
+
+    // Вычисляем радиус как расстояние от центра до текущей позиции
+    const dx = currentX - shapeStart.x;
+    const dy = currentY - shapeStart.y;
+    const radius = Math.sqrt(dx * dx + dy * dy);
+
+    context.strokeStyle = brushColor;
+    context.lineWidth = brushSize;
+
+    context.beginPath();
+    // Рисуем окружность с центром в начальной точке
+    context.arc(shapeStart.x, shapeStart.y, radius, 0, 2 * Math.PI);
+    context.stroke();
+  };
+
+  // Функция для начала рисования эллипса
+  const handleEllipseDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setShapeStart({ x, y });
+
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    setSnapshot(imageData);
+
+    setIsDrawing(true);
+  };
+
+  // Функция для отрисовки эллипса в реальном времени (без сохранения пропорций)
+  const drawEllipse = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !shapeStart || !snapshot) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const currentX = e.clientX - rect.left;
+    const currentY = e.clientY - rect.top;
+
+    // Восстанавливаем сохраненный снимок холста
+    context.putImageData(snapshot, 0, 0);
+
+    // Вычисляем центр эллипса
+    const centerX = (shapeStart.x + currentX) / 2;
+    const centerY = (shapeStart.y + currentY) / 2;
+
+    // Вычисляем радиусы по X и Y
+    const radiusX = Math.abs(currentX - shapeStart.x) / 2;
+    const radiusY = Math.abs(currentY - shapeStart.y) / 2;
+
+    context.strokeStyle = brushColor;
+    context.lineWidth = brushSize;
+
+    context.beginPath();
+    // Рисуем эллипс с центром между начальной и конечной точками
+    context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+    context.stroke();
+  };
+
   // Функция обработчик рисования линии с текущим инструментом
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -66,6 +230,22 @@ function DrawingPage() {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    // Вызываем соответствующую функцию в зависимости от инструмента
+    if (currentTool === "square") {
+      handleSquareDrawing(e);
+      return;
+    }
+
+    if (currentTool === "circle") {
+      handleCircleDrawing(e);
+      return;
+    }
+
+    if (currentTool === "ellipse") {
+      handleEllipseDrawing(e);
+      return;
+    }
 
     setIsDrawing(true);
 
@@ -81,8 +261,24 @@ function DrawingPage() {
     context.stroke();
   };
 
-  // Функция для рисования инструментом
+  // Функция для рисования линии
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Проверяем, какой инструмент активен и вызываем соответствующую функцию
+    if (currentTool === "square" && isDrawing) {
+      drawSquare(e);
+      return;
+    }
+
+    if (currentTool === "circle" && isDrawing) {
+      drawCircle(e);
+      return;
+    }
+
+    if (currentTool === "ellipse" && isDrawing) {
+      drawEllipse(e);
+      return;
+    }
+
     if (!isDrawing) return;
 
     const canvas = canvasRef.current;
@@ -114,7 +310,13 @@ function DrawingPage() {
         setBrushColor(color);
         setCurrentTool("brush");
       }
-    } else if (currentTool === "brush" || currentTool === "eraser") {
+    } else if (
+      currentTool === "brush" ||
+      currentTool === "eraser" ||
+      currentTool === "square" ||
+      currentTool === "circle" ||
+      currentTool === "ellipse"
+    ) {
       startDrawing(e);
     } else if (currentTool === "fill") {
       handleFill();
@@ -124,6 +326,11 @@ function DrawingPage() {
   // Обрабатываем конец рисования
   const stopDrawing = () => {
     setIsDrawing(false);
+
+    // Сбрасываем состояние фигур
+    setShapeStart(null);
+    setSnapshot(null);
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -240,6 +447,7 @@ function DrawingPage() {
                 setCurrentTool("square");
               }}
               toolName="square"
+              currentTool={currentTool}
               icon={square_icon}
             >
               Квадрат
@@ -251,8 +459,17 @@ function DrawingPage() {
               }}
               toolName="circle"
               icon={circle_icon}
+              currentTool={currentTool}
             >
               Круг
+            </ToolButton>
+
+            <ToolButton
+              toolName="ellipse"
+              onClick={() => setCurrentTool("ellipse")}
+              currentTool={currentTool}
+            >
+              Эллипс
             </ToolButton>
 
             <ToolButton

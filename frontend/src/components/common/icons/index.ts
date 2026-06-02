@@ -7,6 +7,7 @@ import fill_icon from "/fill.svg";
 import upload_to_cloud from "/cloud_upload.svg";
 import square_icon from "/square.svg";
 import circle_icon from "/circle.svg";
+import ellipse_icon from "/ellipse.svg";
 
 export {
   eraser_icon,
@@ -18,4 +19,5 @@ export {
   upload_to_cloud,
   square_icon,
   circle_icon,
+  ellipse_icon,
 };

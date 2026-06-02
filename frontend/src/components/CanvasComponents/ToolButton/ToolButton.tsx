@@ -12,6 +12,7 @@ type DrawingTools =
   | "uploadToCloud"
   | "square"
   | "circle"
+  | "ellipse"
   | "text";
 
 interface ToolButtonProps {
@@ -30,12 +31,12 @@ function ToolButton(props: ToolButtonProps) {
   return (
     <button
       disabled={props.disabled}
-      className={`${styles["alternative_btn"]} ${!isUndefined && props.currentTool === props.toolName ? styles["active"] : ""}`}
+      className={`${styles["tool_btn"]} ${!isUndefined && props.currentTool === props.toolName ? styles["active"] : ""}`}
       onClick={props.onClick}
     >
       <div className={styles["btn_content"]}>
         <p>{props.children}</p>
-        <img src={props.icon} alt="" />
+        <img className={styles["btn_icon"]} src={props.icon} alt="" />
       </div>
     </button>
   );

@@ -1,4 +1,4 @@
-.alternative_btn {
+.tool_btn {
   border: 1px solid var(--primary);
   color: var(--text-color);
   background: none;
@@ -14,23 +14,36 @@
   padding: 0.5rem 1rem;
 }
 
-.alternative_btn:hover {
+.tool_btn:hover {
   background-color: var(--primary);
   color: var(--bg-panel);
+  .btn_icon {
+    filter: invert(0%);
+  }
 }
 
-.alternative_btn:disabled {
+.tool_btn:disabled {
   color: var(--disabled);
   border: 1px solid var(--disabled);
+  .btn_icon {
+    filter: none;
+  }
 }
 
-.alternative_btn:disabled:hover {
+.tool_btn:disabled:hover {
   background: none;
+  .btn_icon {
+    filter: none;
+  }
 }
 
 .active {
   background-color: var(--primary);
   color: var(--bg-panel);
+}
+
+.active .btn_icon {
+  filter: invert(0%);
 }
 
 .btn_content {
@@ -39,4 +52,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.25rem;
+}
+
+.btn_icon {
+  filter: invert(100%);
+  transition: filter var(--transition-time);
 }

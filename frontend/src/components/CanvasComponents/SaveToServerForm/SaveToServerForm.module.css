@@ -76,3 +76,25 @@
 .error {
   color: red;
 }
+
+.success_message {
+  color: green;
+  font-size: var(--text);
+  padding: 0.5rem;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: var(--border-radius);
+  width: 100%;
+  text-align: center;
+}
+
+.error_message {
+  color: #721c24;
+  font-size: var(--text);
+  padding: 0.5rem;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: var(--border-radius);
+  width: 100%;
+  text-align: center;
+}

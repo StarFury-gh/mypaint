@@ -100,3 +100,46 @@
 .card-image {
   width: 100%;
 }
+
+.delete_btn {
+  background-color: var(--danger);
+  cursor: pointer;
+  aspect-ratio: 1/1;
+  border: none;
+  color: var(--bg-panel);
+
+  transition:
+    background-color var(--transition-time),
+    color var(--transition-time);
+
+  border-radius: var(--border-radius);
+
+  font-size: var(--text);
+}
+
+.delete_btn:hover {
+  background-color: var(--danger-light);
+  color: var(--bg-panel);
+}
+
+.card-title {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.inner-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}

@@ -26,7 +26,7 @@ function AppHeader(props: AppHeaderProps) {
     },
     props.authStatus
       ? {
-          title: "Профиль",
+          title: "Моя галерея",
           name: "profile",
           to: "/profile",
         }

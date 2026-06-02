@@ -22,6 +22,7 @@ import {
   fill_icon,
   square_icon,
   circle_icon,
+  text_icon,
 } from "../../components/common/icons";
 
 function DrawingPage() {
@@ -294,6 +295,7 @@ function DrawingPage() {
     context.moveTo(x, y);
   };
 
+  // Функция для заливки
   const handleFill = () => {
     alert("Функция недоступна.");
     setCurrentTool("brush");
@@ -378,13 +380,13 @@ function DrawingPage() {
     context.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  // Функция для сохранения холста как файла
+  // Функция для сохранения рисунка как файла
   const handleSaveCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const link = document.createElement("a");
-    link.download = "drawing.png";
+    link.download = "MyPaint_рисунок.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
@@ -483,6 +485,17 @@ function DrawingPage() {
             </ToolButton>
 
             <ToolButton
+              onClick={() => {
+                setCurrentTool("text");
+              }}
+              currentTool={currentTool}
+              toolName="text"
+              icon={text_icon}
+            >
+              Текст
+            </ToolButton>
+
+            <ToolButton
               toolName="eraser"
               currentTool={currentTool}
               onClick={() => handleToolChange("eraser")}
@@ -507,18 +520,19 @@ function DrawingPage() {
             >
               Очистить
             </ToolButton>
+            <div className={styles["save"]}>
+              <ToolButton onClick={handleSaveCanvas} icon={save_icon}>
+                Сохранить
+              </ToolButton>
 
-            <ToolButton onClick={handleSaveCanvas} icon={save_icon}>
-              Сохранить
-            </ToolButton>
-
-            <ToolButton
-              toolName="uploadToCloud"
-              onClick={handleUploadToCloud}
-              icon={upload_to_cloud}
-            >
-              В облако
-            </ToolButton>
+              <ToolButton
+                toolName="uploadToCloud"
+                onClick={handleUploadToCloud}
+                icon={upload_to_cloud}
+              >
+                В облако
+              </ToolButton>
+            </div>
           </div>
         </div>
         <div className={styles["canvas_box"]}>

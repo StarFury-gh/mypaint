@@ -38,12 +38,8 @@ function RegisterForm() {
       newErrors.password = "Пароль должен содержать минимум 6 символов";
     } else if (password.length > 30) {
       newErrors.password = "Пароль не должен превышать 30 символов";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])/.test(password)) {
-      newErrors.password =
-        "Пароль должен содержать хотя бы одну заглавную и одну строчную букву";
     }
 
-    // Валидация подтверждения пароля
     if (!confirmPassword) {
       newErrors.confirmPassword = "Подтвердите пароль";
     } else if (password !== confirmPassword) {

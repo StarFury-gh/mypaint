@@ -1,7 +1,9 @@
 import { useState, useEffect, type ChangeEvent, type SubmitEvent } from "react";
+import axios from "axios";
 
 import { AppInput } from "../../common";
 import { close_icon } from "../../common/icons";
+import { API_URL } from "../../../constants";
 
 import styles from "./SaveToServerForm.module.css";
 
@@ -16,9 +18,19 @@ interface Errors {
 
 function SaveToServerForm(props: SaveToServerFormProps) {
   const [paintingTitle, setPaintingTitle] = useState<string>("");
+  const [paintingData, setPaintingData] = useState<string>(
+    props.imageData || "",
+  );
   const [errors, setErrors] = useState<Errors>({});
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  useEffect(() => {}, [props.imageData]);
+  useEffect(() => {
+    const handleLoad = () => {
+      setPaintingData(props.imageData || "");
+    };
+    handleLoad();
+  }, [props.imageData]);
 
   const handlePaintingChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPaintingTitle(e.target.value);
@@ -26,13 +38,55 @@ function SaveToServerForm(props: SaveToServerFormProps) {
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
+    setErrors({});
     if (!paintingTitle) {
       setErrors({
         title: "Введите название рисунка",
       });
       return;
     }
-    console.log("Отправляем на сервер...");
+    if (!paintingData) {
+      alert("Ошибка! Не удалось сохранить изображение");
+    }
+
+    const jwt = localStorage.getItem("jwt");
+
+    try {
+      const { data } = await axios.post(
+        `${API_URL}/images/upload`,
+        {
+          title: paintingTitle,
+          img: paintingData,
+        },
+        {
+          headers: {
+            Authorization: jwt || "",
+          },
+        },
+      );
+      console.log(data);
+      setSuccessMessage("Изображение успешно сохранено!");
+      setTimeout(() => {
+        setSuccessMessage("");
+        if (props.onClose) {
+          props.onClose();
+        }
+      }, 2000);
+    } catch (e) {
+      console.error("Saving image error:", e);
+      if (axios.isAxiosError(e)) {
+        const status = e.response?.status;
+        if (status === 401) {
+          setErrorMessage(
+            "Ошибка авторизации. Пожалуйста, войдите в систему снова.",
+          );
+        } else if (status === 500) {
+          setErrorMessage("Внутренняя ошибка сервера. Попробуйте позже.");
+        } else {
+          setErrorMessage("Неизвестная ошибка при сохранении изображения.");
+        }
+      }
+    }
   };
 
   return (
@@ -66,6 +120,12 @@ function SaveToServerForm(props: SaveToServerFormProps) {
       <button type="submit" className={styles["form_btn"]}>
         Сохранить
       </button>
+      {successMessage && (
+        <div className={styles["success_message"]}>{successMessage}</div>
+      )}
+      {errorMessage && (
+        <div className={styles["error_message"]}>{errorMessage}</div>
+      )}
     </form>
   );
 }

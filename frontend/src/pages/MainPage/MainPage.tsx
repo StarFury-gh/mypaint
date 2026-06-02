@@ -39,7 +39,7 @@ function MainPage() {
           <div className={styles["featureCard"]}>🎚️ Слои (в разработке)</div>
           <div className={styles["featureCard"]}>💧 Заливка (в разработке)</div>
           <div className={styles["featureCard"]}>📝 Текст (в разработке)</div>
-          <div className={styles["featureCard"]}>🔷 Фигуры (в разработке)</div>
+          <div className={styles["featureCard"]}>🔷 Фигуры</div>
           <div className={styles["featureCard"]}>
             🌈 Градиенты (в разработке)
           </div>

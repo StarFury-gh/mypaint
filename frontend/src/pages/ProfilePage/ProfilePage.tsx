@@ -4,7 +4,11 @@ import { Link } from "react-router-dom";
 
 import { Card } from "antd";
 
-import { brush_icon } from "../../components/common/icons";
+import {
+  brush_icon,
+  delete_icon,
+  logout_icon,
+} from "../../components/common/icons";
 
 import styles from "./ProfilePage.module.css";
 import { API_URL, IMAGES_URL } from "../../constants";
@@ -52,6 +56,22 @@ function ProfilePage(props: ProfilePageProps) {
     getImages();
   }, []);
 
+  const handleDelete = async (id: string) => {
+    console.log(id);
+    try {
+      const { data } = await axios.delete(`${API_URL}/images/${id}`, {
+        headers: {
+          Authorization: localStorage.getItem("jwt"),
+        },
+      });
+      if (data.status) {
+        setImages((prevImages) => prevImages.filter((img) => img.id !== id));
+      }
+    } catch (e) {
+      console.error("Deleting image error:", e);
+    }
+  };
+
   const handleLogout = () => {
     window.location.href = "/";
     localStorage.clear();
@@ -78,26 +98,45 @@ function ProfilePage(props: ProfilePageProps) {
         <div className={styles["items"]}>
           <div className={styles["profile-info"]}>
             <h1 className={styles["page-title"]}>
-              Профиль MyPaint пользователя{" "}
+              MyPaint галерея пользователя{" "}
               <span className={styles["username"]}>{props.username}</span>
             </h1>
-            <button className={styles["logout-button"]} onClick={handleLogout}>
+            <AppButton
+              onClick={handleLogout}
+              icon={<img src={logout_icon}></img>}
+            >
               Выйти
-            </button>
+            </AppButton>
           </div>
           <div className={styles["images-grid"]}>
             {images?.map((img) => {
-              console.log(`${IMAGES_URL}/${img.path}`);
               return (
-                <Card title={img.title}>
-                  <img
-                    className={styles["card-image"]}
-                    src={`${IMAGES_URL}/${img.path}`}
-                    alt="Не удалось загрузить ваше изображение."
-                  />
-                  <AppButton icon={<img src={brush_icon}></img>}>
-                    Редактировать
-                  </AppButton>
+                <Card
+                  id={img.id}
+                  title={
+                    <div className={styles["card-title"]}>
+                      <p>{img.title}</p>
+                      <button
+                        onClick={() => handleDelete(img.id)}
+                        className={styles["delete_btn"]}
+                      >
+                        <div className={styles["inner-icon"]}>
+                          <img src={delete_icon} alt="" />
+                        </div>
+                      </button>
+                    </div>
+                  }
+                >
+                  <div className={styles["card-content"]}>
+                    <img
+                      className={styles["card-image"]}
+                      src={`${IMAGES_URL}/${img.path}`}
+                      alt="Не удалось загрузить ваше изображение."
+                    />
+                    <AppButton icon={<img src={brush_icon}></img>}>
+                      Редактировать
+                    </AppButton>
+                  </div>
                 </Card>
               );
             })}

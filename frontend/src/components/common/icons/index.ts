@@ -8,6 +8,9 @@ import upload_to_cloud from "/cloud_upload.svg";
 import square_icon from "/square.svg";
 import circle_icon from "/circle.svg";
 import close_icon from "/close.svg";
+import delete_icon from "/delete.svg";
+import logout_icon from "/logout.svg";
+import text_icon from "/text.svg";
 
 export {
   eraser_icon,
@@ -20,4 +23,7 @@ export {
   square_icon,
   circle_icon,
   close_icon,
+  delete_icon,
+  logout_icon,
+  text_icon,
 };

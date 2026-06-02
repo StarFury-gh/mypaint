@@ -2,7 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 
 import { ColorPicker, Slider } from "antd";
 
-import { ToolButton } from "../../components/CanvasComponents";
+import {
+  SaveToServerForm,
+  ToolButton,
+} from "../../components/CanvasComponents";
+import { AppPopup } from "../../components/common";
+
+import { type DrawingTools } from "../../types/drawing/tools";
 
 import styles from "./DrawingPage.module.css";
 
@@ -18,25 +24,16 @@ import {
   circle_icon,
 } from "../../components/common/icons";
 
-type DrawingTools =
-  | "brush"
-  | "eraser"
-  | "eyedropper"
-  | "fill"
-  | "clearCanvas"
-  | "saveAs"
-  | "uploadToCloud"
-  | "square"
-  | "circle"
-  | "ellipse"
-  | "text";
-
 function DrawingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushSize, setBrushSize] = useState(5);
   const [brushColor, setBrushColor] = useState("rgba(125, 125, 125, 1)");
   const [currentTool, setCurrentTool] = useState<DrawingTools>("brush");
+
+  const [currentImage, setCurrentImage] = useState<string>();
+
+  const [savePopupOpen, setSavePopupOpen] = useState<boolean>(false);
 
   // Добавляем состояния для фигур
   const [shapeStart, setShapeStart] = useState<{ x: number; y: number } | null>(
@@ -261,7 +258,7 @@ function DrawingPage() {
     context.stroke();
   };
 
-  // Функция для рисования линии
+  // Функция для рисования
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
     // Проверяем, какой инструмент активен и вызываем соответствующую функцию
     if (currentTool === "square" && isDrawing) {
@@ -395,6 +392,9 @@ function DrawingPage() {
   //Функция для сохранения рисунка на сервере
   const handleUploadToCloud = () => {
     console.log("Сохраняем на сервере...");
+    const img = canvasRef.current?.toDataURL("image/png");
+    setCurrentImage(img);
+    setSavePopupOpen(true);
   };
 
   // Функция для смены инструмента
@@ -404,6 +404,16 @@ function DrawingPage() {
 
   return (
     <div className={styles["container"]}>
+      <AppPopup
+        isOpen={savePopupOpen}
+        onClose={() => setSavePopupOpen(false)}
+        content={
+          <SaveToServerForm
+            onClose={() => setSavePopupOpen(false)}
+            imageData={currentImage}
+          />
+        }
+      ></AppPopup>
       <div className={styles["items"]}>
         <div className={styles["side_panel"]}>
           <div className={styles["canvas_settings"]}>

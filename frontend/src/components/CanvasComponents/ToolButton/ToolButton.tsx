@@ -1,19 +1,8 @@
 import type { ReactNode } from "react";
 
-import styles from "./ToolButton.module.css";
+import { type DrawingTools } from "../../../types/drawing/tools";
 
-type DrawingTools =
-  | "brush"
-  | "eraser"
-  | "eyedropper"
-  | "fill"
-  | "clearCanvas"
-  | "saveAs"
-  | "uploadToCloud"
-  | "square"
-  | "circle"
-  | "ellipse"
-  | "text";
+import styles from "./ToolButton.module.css";
 
 interface ToolButtonProps {
   children: ReactNode;

@@ -1,0 +1,31 @@
+.input {
+  border: 1px solid var(--primary);
+  outline: none;
+  font-size: var(--text);
+  color: var(--text-color);
+  padding: 8px 12px;
+  border-radius: var(--border-radius);
+  transition:
+    border var(--transition-time),
+    border-radius var(--transition-time);
+}
+
+.input:focus {
+  border: 1px solid var(--contrast-primary);
+  border-radius: var(--border-radius-round);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.label {
+  font-size: var(--text);
+}
+
+.error {
+  border: 1px solid red;
+}

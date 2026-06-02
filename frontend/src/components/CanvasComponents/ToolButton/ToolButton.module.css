@@ -1,4 +1,6 @@
 .tool_btn {
+  cursor: pointer;
+
   border: 1px solid var(--primary);
   color: var(--text-color);
   background: none;

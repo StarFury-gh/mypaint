@@ -1,7 +1,7 @@
 import styles from "./AppButton.module.css";
 
 interface AppButtonProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onClick?: () => void;
   icon?: React.ReactNode;
 }

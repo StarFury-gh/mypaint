@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import styles from "./AppHeader.module.css";
@@ -14,8 +13,6 @@ interface AppHeaderProps {
 }
 
 function AppHeader(props: AppHeaderProps) {
-  const [currentPage, setCurrentPage] = useState("main");
-
   const navOptions: Array<NavigationOption> = [
     {
       title: "MyPaint",
@@ -40,10 +37,6 @@ function AppHeader(props: AppHeaderProps) {
         },
   ];
 
-  const handlePageChange = (newPage: string) => {
-    setCurrentPage(newPage);
-  };
-
   return (
     <header className={styles["header"]}>
       <nav>
@@ -51,11 +44,7 @@ function AppHeader(props: AppHeaderProps) {
           {navOptions.map((option, idx) => {
             return (
               <li key={idx}>
-                <Link
-                  onClick={() => handlePageChange(option.name)}
-                  to={option.to}
-                  className={`${styles["link"]} ${currentPage === option.name ? styles["active"] : ""}`}
-                >
+                <Link to={option.to} className={styles["link"]}>
                   {option.title}
                 </Link>
               </li>

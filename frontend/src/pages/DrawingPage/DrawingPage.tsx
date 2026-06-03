@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { ColorPicker, Slider } from "antd";
+import { ColorPicker, Slider, InputNumber } from "antd";
 
 import {
   SaveToServerForm,
@@ -57,6 +57,14 @@ function DrawingPage() {
 
   const [savePopupOpen, setSavePopupOpen] = useState<boolean>(false);
   const currentPositionRef = useRef<{ x: number; y: number } | null>(null);
+
+  const handleSizeChange = (value: number | null) => {
+    if (value) {
+      setBrushSize(value);
+    } else {
+      setBrushSize(1);
+    }
+  };
 
   // Состояния для фигур
   const [shapeStart, setShapeStart] = useState<{ x: number; y: number } | null>(
@@ -471,9 +479,13 @@ function DrawingPage() {
             <Slider
               defaultValue={5}
               min={1}
-              onChange={(newSize) => setBrushSize(newSize)}
+              onChange={handleSizeChange}
+              value={brushSize}
             />
-            <span>{brushSize}px</span>
+            <div className={styles["input_size"]}>
+              <InputNumber value={brushSize} onChange={handleSizeChange} />
+              <p>px</p>
+            </div>
           </div>
           <div className={styles["color_pick"]}>
             <div className={styles["setting"]}>

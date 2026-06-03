@@ -38,7 +38,6 @@ function ProfilePage(props: ProfilePageProps) {
             Authorization: localStorage.getItem("jwt"),
           },
         });
-        console.log(data);
         setImages(data.images);
         setError(null);
         setIsUnauthorized(false);
@@ -57,7 +56,6 @@ function ProfilePage(props: ProfilePageProps) {
   }, []);
 
   const handleDelete = async (id: string) => {
-    console.log(id);
     try {
       const { data } = await axios.delete(`${API_URL}/images/${id}`, {
         headers: {

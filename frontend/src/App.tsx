@@ -19,6 +19,7 @@ function App() {
         cssVar: { key: "index" },
         components: {
           Slider: {
+            colorPrimary: "var(--primary)",
             trackBg: "var(--primary)",
             trackHoverBg: "var(--primary)",
             dotBorderColor: "var(--primary)",

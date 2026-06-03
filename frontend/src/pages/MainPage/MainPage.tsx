@@ -2,6 +2,15 @@ import { Link } from "react-router-dom";
 
 import styles from "./MainPage.module.css";
 
+const FEATURES = [
+  "🖌️ Кисти",
+  "🔷 Фигуры",
+  "🎚️ Слои (в разработке)",
+  "💧 Заливка (в разработке)",
+  "📝 Текст (в разработке)",
+  "🌈 Градиенты (в разработке)",
+];
+
 function MainPage() {
   return (
     <div className={styles["container"]}>
@@ -35,14 +44,13 @@ function MainPage() {
           текст, фигуры, градиенты и фильтры. Мгновенный старт без регистрации.
         </p>
         <div className={styles["featuresGrid"]}>
-          <div className={styles["featureCard"]}>🖌️ Кисти</div>
-          <div className={styles["featureCard"]}>🎚️ Слои (в разработке)</div>
-          <div className={styles["featureCard"]}>💧 Заливка (в разработке)</div>
-          <div className={styles["featureCard"]}>📝 Текст (в разработке)</div>
-          <div className={styles["featureCard"]}>🔷 Фигуры</div>
-          <div className={styles["featureCard"]}>
-            🌈 Градиенты (в разработке)
-          </div>
+          {FEATURES.map((feature, idx) => {
+            return (
+              <div key={idx} className={styles["featureCard"]}>
+                {feature}
+              </div>
+            );
+          })}
         </div>
       </section>
 

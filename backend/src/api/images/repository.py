@@ -4,6 +4,7 @@ import aiofiles
 from pathlib import Path
 import base64
 import os
+import datetime
 
 from asyncpg import Connection
 from typing import List
@@ -27,6 +28,18 @@ class Images_Repository:
             created_at=str(record.get("created_at")),
             updated_at=str(record.get("updated_at")),
         )
+
+    async def get_image_by_id(self, image_id: str, author_id: str) -> Image | None:
+        record = await self._db.fetchrow(
+            "SELECT id, title, author_id, path, created_at, updated_at FROM paintings WHERE author_id=$1 AND id=$2",
+            author_id,
+            image_id,
+        )
+
+        if record is not None:
+            return self._prepare_to_model(record)
+
+        return None
 
     async def get_users_images(
         self, author_id: str, limit: int, offset: int
@@ -144,5 +157,54 @@ class Images_Repository:
 
         except Exception as e:
             print(f"Deleting file error: {e}")
+            await tx.rollback()
+            raise e
+
+    async def update_image_content(
+        self, id: str, author_id: str, new_img: str, new_title: str | None
+    ) -> str | None:
+        tx = self._db.transaction()
+        await tx.start()
+
+        base64_data = new_img
+        if "," in new_img:
+            base64_data = new_img.split(",", 1)[1]
+
+        try:
+            binary_data = base64.b64decode(base64_data)
+        except Exception as e:
+            raise ValueError(f"Invalid base64 string: {e}")
+
+        try:
+            existence_path = await self._db.fetchval(
+                "SELECT path FROM paintings WHERE id=$1 AND author_id=$2", id, author_id
+            )
+
+            if existence_path is not None:
+                file_path = Path(config_object.UPLOAD_DIR) / existence_path
+
+                async with aiofiles.open(file_path, "wb") as buffer:
+                    await buffer.write(binary_data)
+
+                title = await self._db.fetchval(
+                    "UPDATE paintings SET updated_at=$1 WHERE id=$2 AND author_id=$3 RETURNING title",
+                    datetime.datetime.now(datetime.timezone.utc),
+                    id,
+                    author_id,
+                )
+
+                if new_title:
+                    await self._db.execute(
+                        "UPDATE paintings SET title=$1 WHERE id=$2", new_title, id
+                    )
+
+                await tx.commit()
+
+                return title
+
+            return None
+
+        except Exception as e:
+            print("Updating image content error:", e)
             await tx.rollback()
             raise e

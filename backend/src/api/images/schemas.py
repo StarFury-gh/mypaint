@@ -6,13 +6,19 @@ class UploadImageDTO(BaseModel):
     title: str
 
 
+class UpdateImageDTO(BaseModel):
+    id: str
+    img: str
+    new_title: str | None
+
+
 class Image(BaseModel):
     id: str
     author_id: str
     title: str
     path: str
-    created_at: str
-    updated_at: str
+    created_at: str | None
+    updated_at: str | None
 
 
 class Pagination(BaseModel):

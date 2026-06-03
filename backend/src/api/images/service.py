@@ -12,6 +12,23 @@ class Images_Service:
     def __init__(self, repository: Images_Repository) -> None:
         self._repo = repository
 
+    async def get_image_by_id(self, authorization: JWTUserInfo, image_id: str):
+        if authorization is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Authorization required"
+            )
+
+        image = await self._repo.get_image_by_id(
+            image_id=image_id, author_id=authorization.id
+        )
+
+        if image is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Image not found"
+            )
+
+        return {"image": image}
+
     async def get_users_images(
         self, authorization: JWTUserInfo | None, limit: int, offset: int
     ):
@@ -68,6 +85,15 @@ class Images_Service:
                 detail="Authorization required",
             )
 
+        if base64 is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Base64 is required"
+            )
+        if title is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Title is required"
+            )
+
         try:
             result = await self._repo.save_base64(
                 base64_str=base64, title=title, author_id=authorization.id
@@ -100,3 +126,28 @@ class Images_Service:
             )
 
         return {"status": True, "deleted": result}
+
+    async def update_image(
+        self, new_title: str | None, id: str, image: str, authorization: JWTUserInfo
+    ):
+        if authorization is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authorization required",
+            )
+
+        if image is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Image is required"
+            )
+
+        result = await self._repo.update_image_content(
+            new_title=new_title, id=id, new_img=image, author_id=authorization.id
+        )
+
+        if result is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Image not found"
+            )
+
+        return {"status": True, "updated": result}

@@ -2,7 +2,7 @@
 
 **MyPaint** — это веб-приложение для создания графических рисунков прямо в браузере без установки дополнительного ПО.
 
-![Frontend Preview](https://placehold.co/1200x1080/png?text=MyPaint+Editor+Interface)
+![Frontend Preview](frontend_preview.png)
 
 ## 🛠️ Стек технологий
 

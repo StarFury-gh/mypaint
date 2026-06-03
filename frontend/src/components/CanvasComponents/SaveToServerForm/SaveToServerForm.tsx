@@ -124,6 +124,12 @@ function SaveToServerForm(props: SaveToServerFormProps) {
           setErrors({});
           setSuccessMessage("Изображение обновлено.");
           setSent(true);
+          setTimeout(() => {
+            setSuccessMessage("");
+            if (props.onClose) {
+              props.onClose();
+            }
+          }, 2000);
         }
       }
     } catch (e) {

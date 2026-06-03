@@ -61,6 +61,23 @@
 .save {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  padding: 0.5rem;
   margin-top: 12px;
+}
+
+.color_pick {
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.prev_colors {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.25rem;
+  justify-items: center;
 }

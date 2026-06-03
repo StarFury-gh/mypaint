@@ -1,0 +1,22 @@
+.color_btn {
+  aspect-ratio: 1;
+  width: 25px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: border-radius var(--transition-time);
+}
+
+.color_btn:hover {
+  border-radius: var(--border-radius-round);
+}
+
+.color_btn:disabled {
+  border: none;
+  border-radius: var(--border-radius);
+}
+
+.color_btn:disabled:hover {
+  border: none;
+  border-radius: var(--border-radius);
+}

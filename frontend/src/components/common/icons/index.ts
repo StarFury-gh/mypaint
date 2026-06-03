@@ -11,6 +11,7 @@ import close_icon from "/close.svg";
 import delete_icon from "/delete.svg";
 import logout_icon from "/logout.svg";
 import text_icon from "/text.svg";
+import reset_colors_icon from "/reset_colors.svg";
 
 export {
   eraser_icon,
@@ -26,4 +27,5 @@ export {
   delete_icon,
   logout_icon,
   text_icon,
+  reset_colors_icon,
 };

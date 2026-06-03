@@ -5,6 +5,7 @@ import { ColorPicker, Slider } from "antd";
 import {
   SaveToServerForm,
   ToolButton,
+  ColorButton,
 } from "../../components/CanvasComponents";
 import { AppPopup } from "../../components/common";
 
@@ -23,20 +24,41 @@ import {
   square_icon,
   circle_icon,
   text_icon,
+  reset_colors_icon,
 } from "../../components/common/icons";
+
+const STANDARD_BLUE = "#6c6cd7";
+const STANDARD_RED = "#d76c6c";
+const STANDARD_GRAY = "#4c4c4c";
+
+type PaletteColor = string | null | "#6c6cd7" | "#d76c6c" | undefined;
+
+const EMPTY_PALETTE = Array(16)
+  .fill(null)
+  .map((_, idx) => {
+    if (idx == 0) {
+      return STANDARD_BLUE;
+    } else if (idx == 1) {
+      return STANDARD_RED;
+    }
+  });
 
 function DrawingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushSize, setBrushSize] = useState(5);
-  const [brushColor, setBrushColor] = useState("rgba(125, 125, 125, 1)");
+  const [brushColor, setBrushColor] = useState(STANDARD_GRAY);
   const [currentTool, setCurrentTool] = useState<DrawingTools>("brush");
+
+  const [prevColors, setPrevColors] =
+    useState<Array<PaletteColor>>(EMPTY_PALETTE);
 
   const [currentImage, setCurrentImage] = useState<string>();
 
   const [savePopupOpen, setSavePopupOpen] = useState<boolean>(false);
+  const currentPositionRef = useRef<{ x: number; y: number } | null>(null);
 
-  // Добавляем состояния для фигур
+  // Состояния для фигур
   const [shapeStart, setShapeStart] = useState<{ x: number; y: number } | null>(
     null,
   );
@@ -57,6 +79,18 @@ function DrawingPage() {
 
   const handleColorChange = (_: unknown, css: string) => {
     setBrushColor(css);
+  };
+
+  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    currentPositionRef.current = { x, y };
+
+    draw(e);
   };
 
   // Функция для начала рисования квадрата
@@ -197,14 +231,13 @@ function DrawingPage() {
     const currentX = e.clientX - rect.left;
     const currentY = e.clientY - rect.top;
 
-    // Восстанавливаем сохраненный снимок холста
     context.putImageData(snapshot, 0, 0);
 
-    // Вычисляем центр эллипса
+    // Центр эллипса
     const centerX = (shapeStart.x + currentX) / 2;
     const centerY = (shapeStart.y + currentY) / 2;
 
-    // Вычисляем радиусы по X и Y
+    // Радиусы по X и Y
     const radiusX = Math.abs(currentX - shapeStart.x) / 2;
     const radiusY = Math.abs(currentY - shapeStart.y) / 2;
 
@@ -212,7 +245,7 @@ function DrawingPage() {
     context.lineWidth = brushSize;
 
     context.beginPath();
-    // Рисуем эллипс с центром между начальной и конечной точками
+    // Рисуем эллипс
     context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI);
     context.stroke();
   };
@@ -220,6 +253,10 @@ function DrawingPage() {
   // Функция обработчик рисования линии с текущим инструментом
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
+    if (!prevColors.some((color) => color === brushColor)) {
+      const updatedPrevColors = prevColors.slice(0, prevColors.length - 1);
+      setPrevColors([brushColor, ...updatedPrevColors]);
+    }
     if (!canvas) return;
 
     const context = canvas.getContext("2d");
@@ -295,14 +332,17 @@ function DrawingPage() {
     context.moveTo(x, y);
   };
 
-  // Функция для заливки
-  const handleFill = () => {
-    alert("Функция недоступна.");
-    setCurrentTool("brush");
-  };
-
   // Определяем что делать, относительно текущего инструмента
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    currentPositionRef.current = { x, y };
+
+    // Ваш существующий код обработки инструментов
     if (currentTool === "eyedropper") {
       const color = getColorAtPosition(e);
       if (color) {
@@ -311,19 +351,18 @@ function DrawingPage() {
       }
     } else if (
       currentTool === "brush" ||
-      currentTool === "eraser" ||
       currentTool === "square" ||
       currentTool === "circle" ||
       currentTool === "ellipse"
     ) {
       startDrawing(e);
-    } else if (currentTool === "fill") {
-      handleFill();
+    } else if (currentTool === "eraser") {
+      startDrawing(e);
     }
   };
 
   // Обрабатываем конец рисования
-  const stopDrawing = () => {
+  const stopDrawing = async () => {
     setIsDrawing(false);
 
     // Сбрасываем состояние фигур
@@ -335,6 +374,10 @@ function DrawingPage() {
 
     const context = canvas.getContext("2d");
     if (!context) return;
+
+    if (currentTool === "eraser") {
+      context.globalCompositeOperation = "source-over";
+    }
 
     context.beginPath();
   };
@@ -380,6 +423,11 @@ function DrawingPage() {
     context.clearRect(0, 0, canvas.width, canvas.height);
   };
 
+  // Функция для очистки предыдущих цветов
+  const handleClearPrevColors = () => {
+    setPrevColors(EMPTY_PALETTE);
+  };
+
   // Функция для сохранения рисунка как файла
   const handleSaveCanvas = () => {
     const canvas = canvasRef.current;
@@ -422,16 +470,33 @@ function DrawingPage() {
             <label>Размер кисти: </label>
             <Slider
               defaultValue={5}
+              min={1}
               onChange={(newSize) => setBrushSize(newSize)}
             />
             <span>{brushSize}px</span>
           </div>
-          <div className={styles["setting"]}>
-            <label>Цвет кисти: </label>
-            <ColorPicker
-              value={brushColor}
-              onChange={handleColorChange}
-            ></ColorPicker>
+          <div className={styles["color_pick"]}>
+            <div className={styles["setting"]}>
+              <label>Цвет кисти: </label>
+              <ColorPicker
+                value={brushColor}
+                onChange={handleColorChange}
+              ></ColorPicker>
+            </div>
+            <p>Предыдущие цвета:</p>
+            <div className={styles["prev_colors"]}>
+              {prevColors.map((color, idx) => {
+                return (
+                  <ColorButton
+                    key={idx}
+                    onClick={() => {
+                      setBrushColor(color || "null");
+                    }}
+                    color={color}
+                  ></ColorButton>
+                );
+              })}
+            </div>
           </div>
           <div className={styles["alternative_buttons"]}>
             <ToolButton
@@ -480,6 +545,7 @@ function DrawingPage() {
               toolName="ellipse"
               onClick={() => setCurrentTool("ellipse")}
               currentTool={currentTool}
+              icon={circle_icon}
             >
               Эллипс
             </ToolButton>
@@ -491,6 +557,7 @@ function DrawingPage() {
               currentTool={currentTool}
               toolName="text"
               icon={text_icon}
+              disabled
             >
               Текст
             </ToolButton>
@@ -514,25 +581,32 @@ function DrawingPage() {
             </ToolButton>
 
             <ToolButton
+              onClick={handleClearPrevColors}
+              icon={reset_colors_icon}
+            >
+              Очистить цвета
+            </ToolButton>
+
+            <ToolButton
               toolName="clearCanvas"
               onClick={handleClearCanvas}
               icon={clear_icon}
             >
               Очистить
             </ToolButton>
-            <div className={styles["save"]}>
-              <ToolButton onClick={handleSaveCanvas} icon={save_icon}>
-                Сохранить
-              </ToolButton>
+          </div>
+          <div className={styles["save"]}>
+            <ToolButton onClick={handleSaveCanvas} icon={save_icon}>
+              Сохранить
+            </ToolButton>
 
-              <ToolButton
-                toolName="uploadToCloud"
-                onClick={handleUploadToCloud}
-                icon={upload_to_cloud}
-              >
-                В облако
-              </ToolButton>
-            </div>
+            <ToolButton
+              toolName="uploadToCloud"
+              onClick={handleUploadToCloud}
+              icon={upload_to_cloud}
+            >
+              В облако
+            </ToolButton>
           </div>
         </div>
         <div className={styles["canvas_box"]}>
@@ -541,9 +615,9 @@ function DrawingPage() {
               className={styles["canvas"]}
               ref={canvasRef}
               width={1200}
-              height={800}
+              height={1080}
               onMouseDown={handleCanvasMouseDown}
-              onMouseMove={draw}
+              onMouseMove={handleCanvasMouseMove}
               onMouseUp={stopDrawing}
               onMouseLeave={stopDrawing}
             />

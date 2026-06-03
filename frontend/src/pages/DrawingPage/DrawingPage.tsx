@@ -8,7 +8,7 @@ import {
   ColorButton,
 } from "../../components/CanvasComponents";
 import { AppPopup } from "../../components/common";
-
+import { API_URL, IMAGES_URL } from "../../constants";
 import { type DrawingTools } from "../../types/drawing/tools";
 
 import styles from "./DrawingPage.module.css";
@@ -25,13 +25,15 @@ import {
   circle_icon,
   text_icon,
   reset_colors_icon,
+  new_image_icon,
 } from "../../components/common/icons";
+
+const MAX_BRUSH_SIZE = 150;
+const MIN_BRUSH_SIZE = 1;
 
 const STANDARD_BLUE = "#6c6cd7";
 const STANDARD_RED = "#d76c6c";
 const STANDARD_GRAY = "#4c4c4c";
-
-type PaletteColor = string | null | "#6c6cd7" | "#d76c6c" | undefined;
 
 const EMPTY_PALETTE = Array(16)
   .fill(null)
@@ -43,12 +45,36 @@ const EMPTY_PALETTE = Array(16)
     }
   });
 
+type PaletteColor = string | null | "#6c6cd7" | "#d76c6c" | undefined;
+
+interface ServerImageInfo {
+  author_id: string;
+  created_at: string;
+  id: string;
+  path: string;
+  title: string;
+  updated_at: string;
+}
+
+interface GetImageServerResponse {
+  image: ServerImageInfo;
+}
+
 function DrawingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushSize, setBrushSize] = useState(5);
   const [brushColor, setBrushColor] = useState(STANDARD_GRAY);
   const [currentTool, setCurrentTool] = useState<DrawingTools>("brush");
+
+  const [editingImageID] = useState<string | null>(
+    localStorage.getItem("editingImageID"),
+  );
+
+  const [imgInfo, setImgInfo] = useState<{
+    id?: string;
+    title?: string;
+  }>();
 
   const [prevColors, setPrevColors] =
     useState<Array<PaletteColor>>(EMPTY_PALETTE);
@@ -71,6 +97,38 @@ function DrawingPage() {
     null,
   );
   const [snapshot, setSnapshot] = useState<ImageData | null>(null);
+
+  useEffect(() => {
+    const getImage = async () => {
+      if (editingImageID) {
+        const response = await fetch(`${API_URL}/images/${editingImageID}`, {
+          headers: {
+            Authorization: localStorage.getItem("jwt") || "",
+          },
+        });
+        const data: GetImageServerResponse = await response.json();
+        setImgInfo({ title: data.image.title, id: data.image.id });
+        console.log(data);
+        const imageUrlObject = `${IMAGES_URL}/${data.image.path}`;
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+
+          const context = canvas.getContext("2d");
+          if (!context) return;
+
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+        img.src = imageUrlObject;
+      } else {
+        console.log("Создание нового изображения");
+      }
+    };
+    getImage();
+  }, [editingImageID]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -460,6 +518,13 @@ function DrawingPage() {
     setCurrentTool(tool);
   };
 
+  // Функция для начала нового рисунка
+  const handleStartNewDrawing = () => {
+    localStorage.removeItem("editingImageID");
+    setImgInfo({});
+    handleClearCanvas();
+  };
+
   return (
     <div className={styles["container"]}>
       <AppPopup
@@ -467,6 +532,8 @@ function DrawingPage() {
         onClose={() => setSavePopupOpen(false)}
         content={
           <SaveToServerForm
+            imgId={imgInfo?.id}
+            imgTitle={imgInfo?.title}
             onClose={() => setSavePopupOpen(false)}
             imageData={currentImage}
           />
@@ -478,12 +545,18 @@ function DrawingPage() {
             <label>Размер кисти: </label>
             <Slider
               defaultValue={5}
-              min={1}
+              min={MIN_BRUSH_SIZE}
+              max={MAX_BRUSH_SIZE}
               onChange={handleSizeChange}
               value={brushSize}
             />
             <div className={styles["input_size"]}>
-              <InputNumber value={brushSize} onChange={handleSizeChange} />
+              <InputNumber
+                max={MAX_BRUSH_SIZE}
+                min={MIN_BRUSH_SIZE}
+                value={brushSize}
+                onChange={handleSizeChange}
+              />
               <p>px</p>
             </div>
           </div>
@@ -611,6 +684,17 @@ function DrawingPage() {
             <ToolButton onClick={handleSaveCanvas} icon={save_icon}>
               Сохранить
             </ToolButton>
+
+            {imgInfo?.title ? (
+              <ToolButton
+                onClick={() => {
+                  handleStartNewDrawing();
+                }}
+                icon={new_image_icon}
+              >
+                Начать новый рисунок
+              </ToolButton>
+            ) : null}
 
             <ToolButton
               toolName="uploadToCloud"

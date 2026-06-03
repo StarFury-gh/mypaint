@@ -8,6 +8,7 @@ interface AppInputProps {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   label?: string;
   hasError?: boolean;
+  defaultValue?: string;
 }
 
 function AppInput(props: AppInputProps) {
@@ -17,6 +18,7 @@ function AppInput(props: AppInputProps) {
         {props.label}
       </label>
       <input
+        defaultValue={props.defaultValue}
         value={props.value}
         className={`${styles["input"]} ${props.hasError ? styles["error"] : ""}`}
         type="text"

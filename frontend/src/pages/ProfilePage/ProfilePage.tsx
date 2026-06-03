@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Card } from "antd";
 
@@ -25,19 +25,27 @@ interface ProfilePageProps {
   username?: string;
 }
 
+const LIMIT = 10;
+const OFFSET = 0;
+
 function ProfilePage(props: ProfilePageProps) {
   const [images, setImages] = useState<Array<Image>>([]);
   const [error, setError] = useState<string | null>(null);
   const [isUnauthorized, setIsUnauthorized] = useState(!props.authStatus);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const getImages = async () => {
       try {
-        const { data } = await axios.get(`${API_URL}/images/`, {
-          headers: {
-            Authorization: localStorage.getItem("jwt"),
+        const { data } = await axios.get(
+          `${API_URL}/images?limit=${LIMIT}&offset=${OFFSET}`,
+          {
+            headers: {
+              Authorization: localStorage.getItem("jwt"),
+            },
           },
-        });
+        );
         setImages(data.images);
         setError(null);
         setIsUnauthorized(false);
@@ -68,6 +76,11 @@ function ProfilePage(props: ProfilePageProps) {
     } catch (e) {
       console.error("Deleting image error:", e);
     }
+  };
+
+  const handleEditImage = (img: Image) => {
+    localStorage.setItem("editingImageID", img.id || "");
+    navigate("/draw");
   };
 
   const handleLogout = () => {
@@ -110,6 +123,7 @@ function ProfilePage(props: ProfilePageProps) {
             {images?.map((img) => {
               return (
                 <Card
+                  key={img.id}
                   id={img.id}
                   title={
                     <div className={styles["card-title"]}>
@@ -131,7 +145,10 @@ function ProfilePage(props: ProfilePageProps) {
                       src={`${IMAGES_URL}/${img.path}`}
                       alt="Не удалось загрузить ваше изображение."
                     />
-                    <AppButton icon={<img src={brush_icon}></img>}>
+                    <AppButton
+                      onClick={() => handleEditImage(img)}
+                      icon={<img src={brush_icon}></img>}
+                    >
                       Редактировать
                     </AppButton>
                   </div>

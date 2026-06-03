@@ -1,6 +1,8 @@
 import { useState, useEffect, type ChangeEvent, type SubmitEvent } from "react";
 import axios from "axios";
 
+import { Select } from "antd";
+
 import { AppInput } from "../../common";
 import { close_icon } from "../../common/icons";
 import { API_URL } from "../../../constants";
@@ -10,20 +12,42 @@ import styles from "./SaveToServerForm.module.css";
 interface SaveToServerFormProps {
   onClose?: () => void;
   imageData?: string;
+  imgTitle?: string;
+  imgId?: string;
 }
 
 interface Errors {
   title?: string;
 }
 
+interface SavingOption {
+  label: string;
+  value: string;
+}
+
 function SaveToServerForm(props: SaveToServerFormProps) {
-  const [paintingTitle, setPaintingTitle] = useState<string>("");
+  const [paintingTitle, setPaintingTitle] = useState<string>(
+    props.imgTitle ? `Измененный рисунок: ${props.imgTitle}` : "",
+  );
   const [paintingData, setPaintingData] = useState<string>(
     props.imageData || "",
   );
   const [errors, setErrors] = useState<Errors>({});
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [sent, setSent] = useState<boolean>(false);
+  const [savingType, setSavingType] = useState("save");
+
+  const savingOptions: Array<SavingOption> = [
+    {
+      label: "Сохранить в облаке",
+      value: "save",
+    },
+    {
+      label: "Обновить изображение",
+      value: "update",
+    },
+  ];
 
   useEffect(() => {
     const handleLoad = () => {
@@ -36,8 +60,16 @@ function SaveToServerForm(props: SaveToServerFormProps) {
     setPaintingTitle(e.target.value);
   };
 
+  const handleSavingTypeChange = (value: string) => {
+    console.log("new saving type:", value);
+    setSavingType(value);
+  };
+
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
+    if (sent) {
+      return;
+    }
     setErrors({});
     if (!paintingTitle) {
       setErrors({
@@ -52,26 +84,48 @@ function SaveToServerForm(props: SaveToServerFormProps) {
     const jwt = localStorage.getItem("jwt");
 
     try {
-      const { data } = await axios.post(
-        `${API_URL}/images/upload`,
-        {
-          title: paintingTitle,
-          img: paintingData,
-        },
-        {
-          headers: {
-            Authorization: jwt || "",
+      if (savingType === "save") {
+        const { data } = await axios.post(
+          `${API_URL}/images/upload`,
+          {
+            title: paintingTitle,
+            img: paintingData,
           },
-        },
-      );
-      console.log(data);
-      setSuccessMessage("Изображение успешно сохранено!");
-      setTimeout(() => {
-        setSuccessMessage("");
-        if (props.onClose) {
-          props.onClose();
+          {
+            headers: {
+              Authorization: jwt || "",
+            },
+          },
+        );
+        console.log(data);
+        setSuccessMessage("Изображение успешно сохранено!");
+        setSent(true);
+        setTimeout(() => {
+          setSuccessMessage("");
+          if (props.onClose) {
+            props.onClose();
+          }
+        }, 2000);
+      } else if (savingType === "update") {
+        const { data } = await axios.patch(
+          `${API_URL}/images/update`,
+          {
+            img: paintingData,
+            id: props.imgId,
+            new_title: paintingTitle,
+          },
+          {
+            headers: {
+              Authorization: jwt || "",
+            },
+          },
+        );
+        if (data.status) {
+          setErrors({});
+          setSuccessMessage("Изображение обновлено.");
+          setSent(true);
         }
-      }, 2000);
+      }
     } catch (e) {
       console.error("Saving image error:", e);
       if (axios.isAxiosError(e)) {
@@ -82,6 +136,10 @@ function SaveToServerForm(props: SaveToServerFormProps) {
           );
         } else if (status === 500) {
           setErrorMessage("Внутренняя ошибка сервера. Попробуйте позже.");
+        } else if (status === 422) {
+          setErrorMessage(
+            "Изображение для обновления не найдено. Попробуйте сохранить",
+          );
         } else {
           setErrorMessage("Неизвестная ошибка при сохранении изображения.");
         }
@@ -117,9 +175,18 @@ function SaveToServerForm(props: SaveToServerFormProps) {
           onChange={handlePaintingChange}
         />
       </div>
-      <button type="submit" className={styles["form_btn"]}>
-        Сохранить
-      </button>
+      <div className={styles["btns"]}>
+        <div className={styles["saving_type"]}>
+          <label htmlFor="">Я хочу: </label>
+          <Select
+            style={{ width: 300 }}
+            onChange={handleSavingTypeChange}
+            options={savingOptions}
+            defaultValue={savingOptions[0].value}
+          ></Select>
+        </div>
+      </div>
+      <button className={styles["form_btn"]}>Сохранить</button>
       {successMessage && (
         <div className={styles["success_message"]}>{successMessage}</div>
       )}

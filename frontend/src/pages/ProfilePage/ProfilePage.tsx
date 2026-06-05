@@ -38,14 +38,13 @@ function ProfilePage(props: ProfilePageProps) {
   useEffect(() => {
     const getImages = async () => {
       try {
-        const { data } = await axios.get(
-          `${API_URL}/images?limit=${LIMIT}&offset=${OFFSET}`,
-          {
-            headers: {
-              Authorization: localStorage.getItem("jwt"),
-            },
+        const url = `${API_URL}/images/?limit=${LIMIT}&offset=${OFFSET}`;
+        console.log("try to get from:", url);
+        const { data } = await axios.get(url, {
+          headers: {
+            Authorization: localStorage.getItem("jwt"),
           },
-        );
+        });
         setImages(data.images);
         setError(null);
         setIsUnauthorized(false);

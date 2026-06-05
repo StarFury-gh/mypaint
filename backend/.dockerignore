@@ -1,0 +1,6 @@
+.venv
+.env_example
+.gitignore
+Dockerfile
+README.md
+saved/*.png

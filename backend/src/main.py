@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from uvicorn import run
 
 from contextlib import asynccontextmanager
+import os
 
 from api.users import users_router
 from api.images import images_router
@@ -17,8 +18,12 @@ from core.database.postgres import create_pg_pool
 async def lifespan(app: FastAPI):
     pool = await create_pg_pool()
     app.state.pg_pool = pool
+
     yield
     await app.state.pg_pool.close()
+
+
+os.makedirs("./saved", exist_ok=True)
 
 
 app = FastAPI(lifespan=lifespan)

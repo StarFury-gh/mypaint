@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import { Link } from "react-router-dom";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 import { API_URL } from "../../constants";
 import styles from "./LoginForm.module.css";
@@ -17,6 +17,7 @@ function LoginForm() {
   }>({});
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const validate = () => {
     const newErrors: typeof errors = {};
@@ -50,23 +51,36 @@ function LoginForm() {
     setIsLoading(true);
     setErrors({});
 
-    const { data } = await axios.post(`${API_URL}/users/login`, {
-      username: login,
-      password,
-    });
-
-    if (data.status) {
-      localStorage.setItem("jwt", data.jwt);
-      setErrors({ submit: "Вы успешно вошли в аккаунт!" });
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 2500);
-    } else {
-      setErrors({
-        submit: "Ошибка входа: " + (data.message || "неизвестная ошибка"),
+    try {
+      const { data } = await axios.post(`${API_URL}/users/login`, {
+        username: login,
+        password,
       });
+
+      if (data.status) {
+        localStorage.setItem("jwt", data.jwt);
+        setIsLoading(false);
+        setIsSuccess(true);
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2500);
+      } else {
+        setErrors({
+          submit: "Ошибка входа: " + (data.message || "неизвестная ошибка"),
+        });
+        setIsLoading(false);
+      }
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        if (e.response && e.response.status === 401) {
+          setErrors({ login: "Неверный логин или пароль" });
+          setIsLoading(false);
+          return;
+        }
+      }
+      console.log(e);
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -130,15 +144,17 @@ function LoginForm() {
             )}
           </div>
 
-          {errors.submit && (
+          {(errors.submit || isSuccess) && (
             <div
               className={
-                errors.submit.includes("успешно")
+                isSuccess
                   ? styles["successMessage"]
-                  : styles["submitError"]
+                  : errors.submit?.includes("успешно")
+                    ? styles["successMessage"]
+                    : styles["submitError"]
               }
             >
-              {errors.submit}
+              {isSuccess ? "Вы успешно вошли в аккаунт!" : errors.submit}
             </div>
           )}
 

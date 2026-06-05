@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import { Link } from "react-router-dom";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { API_URL } from "../../constants";
 
 import styles from "./RegisterForm.module.css";
@@ -20,6 +20,7 @@ function RegisterForm() {
   }>({});
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const validate = () => {
     const newErrors: typeof errors = {};
@@ -69,18 +70,32 @@ function RegisterForm() {
 
       if (response.status === 409) {
         setErrors({ login: "Пользователь с таким логином уже существует" });
+        setIsLoading(false);
+        return;
       }
+
       const { data } = response;
+      setIsLoading(false);
 
       if (data.status) {
         localStorage.setItem("jwt", data.jwt);
+        setIsSuccess(true);
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2500);
+      } else {
+        setErrors({ submit: "Ошибка регистрации" });
       }
-
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1500);
-    } catch (e) {
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        if (e.response && e.response.status === 409) {
+          setErrors({ login: "Пользователь с таким логином уже существует" });
+          setIsLoading(false);
+          return;
+        }
+      }
       console.log(e);
+      setIsLoading(false);
     }
   };
 
@@ -177,15 +192,17 @@ function RegisterForm() {
             )}
           </div>
 
-          {errors.submit && (
+          {(errors.submit || isSuccess) && (
             <div
               className={
-                errors.submit.includes("успешно")
+                isSuccess
                   ? styles["successMessage"]
-                  : styles["submitError"]
+                  : errors.submit?.includes("успешно")
+                    ? styles["successMessage"]
+                    : styles["submitError"]
               }
             >
-              {errors.submit}
+              {isSuccess ? "Регистрация успешна!" : errors.submit}
             </div>
           )}
 

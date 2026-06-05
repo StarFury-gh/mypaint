@@ -9,11 +9,29 @@ services:
     networks:
       - internal
 
+  backend:
+    build: ./backend/
+    container_name: backend
+    volumes:
+      - backend_volume:/app/src/saved
+    networks:
+      - internal
+      - external
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    networks:
+      - external
+    ports:
+      - 8080:80
+
 volumes:
   db_volume:
+  backend_volume:
 
 networks:
-  client:
+  external:
     driver: bridge
 
   internal:

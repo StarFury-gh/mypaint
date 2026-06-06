@@ -22,7 +22,7 @@ class Config:
             self.__POSTGRES_HOST = getenv("POSTGRES_HOST")
             self.__POSTGRES_PORT = int(getenv("POSTGRES_PORT") or 5432)
             self.__POSTGRES_USER = getenv("POSTGRES_USER")
-            self.__POSTGRES_PASSWORD = getenv("POSTGRES_USER")
+            self.__POSTGRES_PASSWORD = getenv("POSTGRES_PASSWORD")
             self.__POSTGRES_DB = getenv("POSTGRES_DB")
 
         self.UPLOAD_DIR = "saved"

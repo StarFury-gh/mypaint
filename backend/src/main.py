@@ -6,6 +6,8 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from core.limiter.slowapi import limiter
 
 from uvicorn import run
@@ -36,7 +38,7 @@ os.makedirs("./saved", exist_ok=True)
 
 app = FastAPI(lifespan=lifespan)
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
-
+Instrumentator().instrument(app).expose(app)
 app.mount("/images/saved", StaticFiles(directory="./saved", check_dir=True))
 
 app.add_middleware(SlowAPIMiddleware)

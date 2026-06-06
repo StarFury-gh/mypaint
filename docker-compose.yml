@@ -26,6 +26,20 @@ services:
     ports:
       - 8080:80
 
+  prometheus:
+    build: ./infra/monitoring/prometheus
+    container_name: prometheus
+    networks:
+      - internal
+
+  grafana:
+    build: ./infra/monitoring/grafana
+    container_name: grafana
+    networks:
+      - internal
+    ports:
+      - 3000:3000
+
 volumes:
   db_volume:
   backend_volume:

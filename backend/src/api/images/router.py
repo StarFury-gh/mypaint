@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from core.security import get_authorization
+from core.limiter.slowapi import limiter
 
 from .dependencies import get_images_service, Images_Service
 from .schemas import Pagination, UploadImageDTO, UpdateImageDTO
@@ -9,7 +10,9 @@ images_router = APIRouter(prefix="/images", tags=["images"])
 
 
 @images_router.get("/")
+@limiter.limit("10/minute")
 async def get_users_images(
+    request: Request,
     authorization=Depends(get_authorization),
     pagination=Depends(Pagination),
     service: Images_Service = Depends(get_images_service),
@@ -20,7 +23,9 @@ async def get_users_images(
 
 
 @images_router.get("/{image_id}")
+@limiter.limit("25/minute")
 async def get_image_by_id(
+    request: Request,
     image_id: str,
     authorization=Depends(get_authorization),
     service: Images_Service = Depends(get_images_service),
@@ -29,7 +34,9 @@ async def get_image_by_id(
 
 
 @images_router.post("/upload")
+@limiter.limit("10/minute")
 async def upload_file(
+    request: Request,
     body: UploadImageDTO,
     service: Images_Service = Depends(get_images_service),
     authorization=Depends(get_authorization),
@@ -40,7 +47,9 @@ async def upload_file(
 
 
 @images_router.patch("/update")
+@limiter.limit("10/minute")
 async def update_image(
+    request: Request,
     body: UpdateImageDTO,
     service: Images_Service = Depends(get_images_service),
     authorization=Depends(get_authorization),
@@ -54,7 +63,9 @@ async def update_image(
 
 
 @images_router.delete("/{image_id}")
+@limiter.limit("10/minute")
 async def delete_image(
+    request: Request,
     image_id: str,
     authorization=Depends(get_authorization),
     service: Images_Service = Depends(get_images_service),

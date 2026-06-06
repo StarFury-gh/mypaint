@@ -2,6 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+
+from core.limiter.slowapi import limiter
+
 from uvicorn import run
 
 from contextlib import asynccontextmanager
@@ -19,6 +25,8 @@ async def lifespan(app: FastAPI):
     pool = await create_pg_pool()
     app.state.pg_pool = pool
 
+    app.state.limiter = limiter
+
     yield
     await app.state.pg_pool.close()
 
@@ -27,7 +35,11 @@ os.makedirs("./saved", exist_ok=True)
 
 
 app = FastAPI(lifespan=lifespan)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
+
 app.mount("/images/saved", StaticFiles(directory="./saved", check_dir=True))
+
+app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

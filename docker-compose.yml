@@ -1,8 +1,6 @@
 services:
   db:
     build: ./infra/db/
-    ports:
-      - 5432:5432
     container_name: db
     volumes:
       - db_volume:/var/lib/postgresql
@@ -37,8 +35,7 @@ services:
     container_name: grafana
     networks:
       - internal
-    ports:
-      - 3000:3000
+      - external
 
 volumes:
   db_volume:

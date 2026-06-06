@@ -39,7 +39,6 @@ function ProfilePage(props: ProfilePageProps) {
     const getImages = async () => {
       try {
         const url = `${API_URL}/images/?limit=${LIMIT}&offset=${OFFSET}`;
-        console.log("try to get from:", url);
         const { data } = await axios.get(url, {
           headers: {
             Authorization: localStorage.getItem("jwt"),

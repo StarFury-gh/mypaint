@@ -61,7 +61,6 @@ function SaveToServerForm(props: SaveToServerFormProps) {
   };
 
   const handleSavingTypeChange = (value: string) => {
-    console.log("new saving type:", value);
     setSavingType(value);
   };
 
@@ -85,7 +84,7 @@ function SaveToServerForm(props: SaveToServerFormProps) {
 
     try {
       if (savingType === "save") {
-        const { data } = await axios.post(
+        await axios.post(
           `${API_URL}/images/upload`,
           {
             title: paintingTitle,
@@ -97,7 +96,6 @@ function SaveToServerForm(props: SaveToServerFormProps) {
             },
           },
         );
-        console.log(data);
         setSuccessMessage("Изображение успешно сохранено!");
         setSent(true);
         setTimeout(() => {

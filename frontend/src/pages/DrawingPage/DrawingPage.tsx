@@ -108,7 +108,6 @@ function DrawingPage() {
         });
         const data: GetImageServerResponse = await response.json();
         setImgInfo({ title: data.image.title, id: data.image.id });
-        console.log(data);
         const imageUrlObject = `${IMAGES_URL}/${data.image.path}`;
         const img = new Image();
         img.crossOrigin = "anonymous";
@@ -507,7 +506,6 @@ function DrawingPage() {
 
   //Функция для сохранения рисунка на сервере
   const handleUploadToCloud = () => {
-    console.log("Сохраняем на сервере...");
     const img = canvasRef.current?.toDataURL("image/png");
     setCurrentImage(img);
     setSavePopupOpen(true);

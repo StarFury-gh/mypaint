@@ -78,7 +78,7 @@ function LoginForm() {
           return;
         }
       }
-      console.log(e);
+      console.error(e);
       setIsLoading(false);
     }
   };

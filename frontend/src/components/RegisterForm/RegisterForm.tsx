@@ -94,7 +94,7 @@ function RegisterForm() {
           return;
         }
       }
-      console.log(e);
+      console.error(e);
       setIsLoading(false);
     }
   };

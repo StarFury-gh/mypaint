@@ -60,6 +60,11 @@ interface GetImageServerResponse {
   image: ServerImageInfo;
 }
 
+interface CanvasSize {
+  width: number;
+  height: number;
+}
+
 function DrawingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -84,11 +89,41 @@ function DrawingPage() {
   const [savePopupOpen, setSavePopupOpen] = useState<boolean>(false);
   const currentPositionRef = useRef<{ x: number; y: number } | null>(null);
 
+  const [canvasSize, setCanvasSize] = useState<CanvasSize>({
+    width: 1200,
+    height: 600,
+  });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const newWidth = Math.max(10, Math.round(rect.width)) - 150;
+        const newHeight = Math.max(10, Math.round(rect.height));
+        console.log("NewSize:", { newHeight, newWidth });
+        setCanvasSize({ width: newWidth, height: newHeight });
+      }
+    };
+
+    updateSize();
+
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.width = canvasSize.width;
+    canvas.height = canvasSize.height;
+  }, [canvasSize]);
+
   const handleSizeChange = (value: number | null) => {
     if (value) {
       setBrushSize(value);
     } else {
-      setBrushSize(1);
+      setBrushSize(brushSize);
     }
   };
 
@@ -114,6 +149,9 @@ function DrawingPage() {
         img.onload = () => {
           const canvas = canvasRef.current;
           if (!canvas) return;
+
+          canvas.width = img.width;
+          canvas.height = img.height;
 
           const context = canvas.getContext("2d");
           if (!context) return;
@@ -704,12 +742,12 @@ function DrawingPage() {
           </div>
         </div>
         <div className={styles["canvas_box"]}>
-          <div className={styles["inner_box"]}>
+          <div className={styles["inner_box"]} ref={containerRef}>
             <canvas
               className={styles["canvas"]}
               ref={canvasRef}
-              width={1200}
-              height={1080}
+              width={canvasSize.width}
+              height={canvasSize.height}
               onMouseDown={handleCanvasMouseDown}
               onMouseMove={handleCanvasMouseMove}
               onMouseUp={stopDrawing}

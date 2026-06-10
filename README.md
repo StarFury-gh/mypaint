@@ -45,7 +45,7 @@
 1. Клонируйте репозиторий:
 
 ```bash
-git clone <репозиторий>
+git clone https://github.com/StarFury-gh/mypaint.git
 cd mypaint
 ```
 
@@ -58,7 +58,7 @@ docker-compose up --build
 3. Откройте фронтенд в браузере:
 
 ```
-http://localhost:5173
+http://localhost:8080
 ```
 
 ## 📂 Структура проекта
